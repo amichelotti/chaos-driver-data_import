@@ -1,5 +1,5 @@
 /*
- *	DummyDriver.h
+ *	AbstractDataImportDriver.h
  *	!CHOAS
  *	Created by Bisegni Claudio.
  *
@@ -17,6 +17,7 @@
  *    	See the License for the specific language governing permissions and
  *    	limitations under the License.
  */
+
 #ifndef ChaosControlUnitDriver_DataImport_h
 #define ChaosControlUnitDriver_DataImport_h
 
@@ -25,6 +26,16 @@
 
 typedef enum DataImportDriverOpcode {
     //opcode to fetch data
+    /*!
+     cmd.parm[0]    //is the offset
+     cmd.parm[1]   //is the lenght of data to read;
+     cmd.resultDataLength //is set to the readed data lenght
+     if( < lenght) {
+     ADIDLERR_<<"Data buffer of the message have lower size of the requested command [offset:"<<offset<<" lenght:"<<lenght<<"]";
+     } else {
+     
+     cmd->resultDataLength = lenght;
+     */
 	DataImportDriverOpcode_GET_DATA = chaos::cu::driver_manager::driver::OpcodeType::OP_USER
 } DataImportDriverOpcode;
 
@@ -38,18 +49,22 @@ typedef enum DataImportDriverOpcode {
 class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
     //is the buffer where the sublcass need to copy the while data pack
     void *buffer_data_block;
-	void driverInit(const char *initParameter) throw(chaos::CException);
-	void driverDeinit() throw(chaos::CException);
-    
-    void growMem(unsigned int new_mem_size);
+    uint32_t buffer_len;
+
+    //read data from offset
+    int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
 protected:
-    virtual int fetchDataBuffer(void *buffer, unsigned int buffer_len)=0;
+    void driverInit(const char *initParameter) throw(chaos::CException);
+    void driverDeinit() throw(chaos::CException);
+    virtual int fetchData(void *buffer, unsigned int buffer_len)=0;
+    //! expand the datapack memory buffer
+    bool growMem(unsigned int new_mem_size);
 public:
 	AbstractDataImportDriver();
 	~AbstractDataImportDriver();
     //! Execute a command
-	cu_driver::MsgManagmentResultType::MsgManagmentResult execOpcode(cu_driver::DrvMsgPtr cmd);
-
+	chaos::cu::driver_manager::driver::MsgManagmentResultType::MsgManagmentResult
+    execOpcode(chaos::cu::driver_manager::driver::DrvMsgPtr cmd);
 };
 
 #endif /* defined(__ControlUnitTest__DummyDriver__) */

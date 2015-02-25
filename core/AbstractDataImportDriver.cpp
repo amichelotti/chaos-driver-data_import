@@ -1,9 +1,9 @@
 /*
- *	DummyDriver.h
+ *	AbstractDataImportDriver.cpp
  *	!CHOAS
  *	Created by Bisegni Claudio.
  *
- *    	Copyright 2013 INFN, National Institute of Nuclear Physics
+ *    	Copyright 2015 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
  *    	you may not use this file except in compliance with the License.
@@ -17,7 +17,9 @@
  *    	See the License for the specific language governing permissions and
  *    	limitations under the License.
  */
-#include "AbstractDataImportDriver.h"
+
+#include <driver/data_import/core/AbstractDataImportDriver.h>
+
 #include <cstdlib>
 #include <string>
 
@@ -25,17 +27,18 @@
 
 #include <boost/lexical_cast.hpp>
 
-namespace cu_driver = chaos::cu::driver_manager::driver;
+using namespace chaos::cu::driver_manager::driver;
 
 #define FREE_MALLOC(x) if(x){free(x); x=NULL;}
 
-#define DataImportDriverLAPP_		LAPP_ << "[AbstractDataImportDriver] "
-#define DataImportDriverLDBG_		LDBG_ << "[AbstractDataImportDriver] "
-#define DataImportDriverLERR_		LERR_ << "[AbstractDataImportDriver] "
+#define ADIDLAPP_	INFO_LOG(AbstractDataImportDriver)
+#define ADIDLDBG_	DBG_LOG(AbstractDataImportDriver)
+#define ADIDLERR_	ERR_LOG(AbstractDataImportDriver)
 
 //default constructor definition
 DEFAULT_CU_DRIVER_PLUGIN_CONSTRUCTOR(AbstractDataImportDriver) {
     buffer_data_block = NULL;
+    buffer_len = 0L;
 }
 
 //default descrutcor
@@ -44,32 +47,54 @@ AbstractDataImportDriver::~AbstractDataImportDriver() {
 }
 
 void AbstractDataImportDriver::driverInit(const char *initParameter) throw(chaos::CException) {
-	DataImportDriverLAPP_ << "Init driver";
-	
+    ADIDLAPP_ << "Init driver";
+    
 }
 
 void AbstractDataImportDriver::driverDeinit() throw(chaos::CException) {
-	DataImportDriverLAPP_ << "Deinit driver";
+    ADIDLAPP_ << "Deinit driver";
     FREE_MALLOC(buffer_data_block)
 }
 
-void AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
-    buffer_data_block = std::realloc(buffer_data_block, new_mem_size);
+bool AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
+    if((buffer_data_block = std::realloc(buffer_data_block, new_mem_size)) != NULL) {
+        buffer_len = new_mem_size;
+    }
+    return buffer_data_block != NULL;
+}
+
+//read data from offset
+int AbstractDataImportDriver::readDataOffset(void* data_ptr,
+                                             uint32_t offset,
+                                             uint32_t lenght) {
+    int err = 0;
+    CHAOS_ASSERT(buffer_data_block)
+    //cast to char to simplify the pinter artimetic
+    const char * ch_casted_buf = static_cast<char*>(data_ptr);
+    
+    //copy seletected portion of data
+    std::memcpy(data_ptr, (ch_casted_buf+offset), lenght);
+    return err;
 }
 
 //! Execute a command
-cu_driver::MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(cu_driver::DrvMsgPtr cmd) {
-	cu_driver::MsgManagmentResultType::MsgManagmentResult result = cu_driver::MsgManagmentResultType::MMR_EXECUTED;
-	switch(cmd->opcode) {
-		case DataImportDriverOpcode_SET_CH_1:
-			if(!cmd->inputData  || (sizeof(int32_t) != cmd->inputDataLength)) break;
-			//we can get the value
-			
-		break;
-
-		case DataImportDriverOpcode_GET_CH_1:
-			
-		break;
-	}
-	return result;
+MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(DrvMsgPtr cmd) {
+    MsgManagmentResultType::MsgManagmentResult result = MsgManagmentResultType::MMR_EXECUTED;
+    switch(cmd->opcode) {
+        case DataImportDriverOpcode_GET_DATA:
+            uint32_t offset=cmd->parm[0];
+            cmd->resultDataLength = (uint32_t)cmd->parm[1];
+            if(!fetchData(buffer_data_block,
+                          buffer_len)) {
+                ADIDLAPP_<<"Read offsett:"<<offset<<" lenght:"<<cmd->resultDataLength;
+                cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
+                if (cmd->ret != 0) {
+                    result = MsgManagmentResultType::MMR_ERROR;
+                }
+            } else {
+                ADIDLERR_<<"Data buffer of the message have lower size of the requested command [offset:"<<offset<<" lenght:"<<cmd->resultDataLength<<"]";
+            }
+            break;
+    }
+    return result;
 }

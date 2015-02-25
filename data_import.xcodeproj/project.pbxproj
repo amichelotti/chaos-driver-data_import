@@ -210,6 +210,7 @@
 					"-lboost_log_setup",
 					"-lchaos_cutoolkit",
 					"-lchaos_common",
+					"-ljsoncpp",
 				);
 				PRODUCT_NAME = data_import;
 			};
@@ -258,6 +259,7 @@
 					"-lboost_log_setup",
 					"-lchaos_cutoolkit",
 					"-lchaos_common",
+					"-ljsoncpp",
 				);
 				PRODUCT_NAME = data_import;
 			};

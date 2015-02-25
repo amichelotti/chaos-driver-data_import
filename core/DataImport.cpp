@@ -18,8 +18,8 @@
  *    	limitations under the License.
  */
 
-#include "DataImport.h"
-#include "AbstractDataImportDriver.h"
+#include <driver/data_import/core/DataImport.h>
+#include <driver/data_import/core/AbstractDataImportDriver.h>
 
 using namespace chaos;
 using namespace chaos::common::data::cache;
@@ -27,15 +27,20 @@ using namespace chaos::cu::driver_manager::driver;
 
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImport)
 
-#define DataImportLAPP_		LAPP_ << "[DataImport] "
-#define DataImportLDBG_		LDBG_ << "[DataImport] " << __PRETTY_FUNCTION__ << " "
-#define DataImportLERR_		LERR_ << "[DataImport] " << __PRETTY_FUNCTION__ << "("<<__LINE__<<") "
+
+#define DataImportLAPP_	INFO_LOG(DataImport)
+#define DataImportLDBG_	DBG_LOG(DataImport)
+#define DataImportLERR_	ERR_LOG(DataImport)
 
 /*
  Construct
  */
-DataImport::DataImport(const string& _control_unit_id, const string& _control_unit_param, const ControlUnitDriverList& _control_unit_drivers):
-RTAbstractControlUnit(_control_unit_id, _control_unit_param, _control_unit_drivers) {
+DataImport::DataImport(const string& _control_unit_id,
+                       const string& _control_unit_param,
+                       const ControlUnitDriverList& _control_unit_drivers):
+RTAbstractControlUnit(_control_unit_id,
+                      _control_unit_param,
+                      _control_unit_drivers) {
 
 }
 
@@ -134,7 +139,7 @@ void DataImport::unitRun() throw(chaos::CException) {
   auto_ptr<DrvMsg> driver_message((DrvMsg*)std::calloc(sizeof(DrvMsg), 1));
 
   //set the opcode for get value from the driver
-  driver_message->opcode = DataImportDriverOpcode_GET_CH_1;
+  driver_message->opcode = DataImportDriverOpcode_GET_DATA;
 
   //associate the driver message input data to output attribute pointer
   driver_message->resultData = out_1_ptr;
@@ -163,48 +168,4 @@ void DataImport::unitInputAttributePreChangeHandler() throw(chaos::CException) {
 
 //! attribute changed handler
 void DataImport::unitInputAttributeChangedHandler() throw(chaos::CException) {
-
-  //array to managed the changed attribute list
-  std::vector<chaos::cu::control_manager::VariableIndexType> changed_input_attribute;
-
-  //check what attribute has changed
-  getAttributeCache()->getChangedInputAttributeIndex(changed_input_attribute);
-
-  if(changed_input_attribute.size()) {
-    //scsan the changed index
-    for (std::vector<chaos::cu::control_manager::VariableIndexType>::iterator it = changed_input_attribute.begin();
-      it != changed_input_attribute.end();
-      it++) {
-        switch(*it) {
-          case 0: {//int_1 attribute
-            const int32_t *in_1 = getAttributeCache()->getROPtr<int32_t>(DOMAIN_INPUT, "in_1");
-
-            //construct the drivesr message
-            auto_ptr<DrvMsg> driver_message((DrvMsg*)std::calloc(sizeof(DrvMsg), 1));
-
-            //set the opcode for get value from the driver
-            driver_message->opcode = DataImportDriverOpcode_SET_CH_1;
-
-            //associate the driver message input data to output attribute pointer
-            driver_message->inputData = (int32_t*)in_1;
-            driver_message->inputDataLength = sizeof(int32_t);
-            //send message to the driver, at index 0, in async
-            getAccessoInstanceByIndex(0)->send(driver_message.get());
-
-            break;
-          }
-          default:
-          break;
-        }
-      }
-      //reset the chagned index
-      getAttributeCache()->resetChangedInputIndex();
-  }
 }
-
-/*
-CDataWrapper *DataImport::my_custom_action(CDataWrapper *actionParam, bool& detachParam) {
-	CDataWrapper *result =  new CDataWrapper();
-	return result;
-}
-*/
