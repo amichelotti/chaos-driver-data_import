@@ -18,10 +18,11 @@
  *    	limitations under the License.
  */
 #include <driver/data_import/core/DataImportDriverInterface.h>
+#include <driver/data_import//core/AbstractDataImportDriver.h>
 
-#define DataImportDriverInterfaceLAPP_	INFO_LOG(DataImportDriverInterface)
-#define DataImportDriverInterfaceLDBG_	DBG_LOG(DataImportDriverInterface)
-#define DataImportDriverInterfaceLERR_	ERR_LOG(DataImportDriverInterface)
+#define DIDILAPP_	INFO_LOG(DataImportDriverInterface)
+#define DIDILDBG_	DBG_LOG(DataImportDriverInterface)
+#define DIDILERR_	ERR_LOG(DataImportDriverInterface)
 
 DataImportDriverInterface::DataImportDriverInterface(chaos::cu::driver_manager::driver::DriverAccessor*_accessor):
 accessor(_accessor){
@@ -30,4 +31,25 @@ accessor(_accessor){
 
 DataImportDriverInterface::~DataImportDriverInterface(){
     
+}
+
+int DataImportDriverInterface::fetchNewDatablock() {
+    int ret,ret2;
+    message.opcode = DataImportDriverOpcode_FETCH_NEW_DATABLOCK;
+    ret2=accessor->send(&message);
+    ret=message.ret;
+    DEBUG_CODE(DIDILDBG_<<"fetchNewDatablock,func ret:"<<ret<<",accessor ret "<<ret2;)
+    return ret;
+}
+
+int DataImportDriverInterface::readAttribute(void *attribute_ptr, int from, int len) {
+    int ret,ret2;
+    message.parm[0] = from;
+    message.parm[1] = len;
+    message.opcode = DataImportDriverOpcode_GET_DATA;
+    message.resultData = attribute_ptr;
+    ret2=accessor->send(&message);
+    ret=message.ret;
+    DEBUG_CODE(DIDILDBG_<<"readAttribute offset:"<<from<<", len:"<<len<<",func ret:"<<ret<<",accessor ret "<<ret2;)
+    return ret;
 }

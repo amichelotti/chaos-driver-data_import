@@ -25,6 +25,8 @@
 
 
 typedef enum DataImportDriverOpcode {
+    //update the data block from the subclass calling fetchData
+    DataImportDriverOpcode_FETCH_NEW_DATABLOCK  = chaos::cu::driver_manager::driver::OpcodeType::OP_USER,
     //opcode to fetch data
     /*!
      cmd.parm[0]    //is the offset
@@ -36,7 +38,7 @@ typedef enum DataImportDriverOpcode {
      
      cmd->resultDataLength = lenght;
      */
-	DataImportDriverOpcode_GET_DATA = chaos::cu::driver_manager::driver::OpcodeType::OP_USER
+	DataImportDriverOpcode_GET_DATA
 } DataImportDriverOpcode;
 
 

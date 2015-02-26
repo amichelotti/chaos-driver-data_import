@@ -28,8 +28,8 @@ ChaosCLI --metadata-server mds_url:5000 --deviceid device_name --print-dataset [
 the set of the input channel can be done (for simple format) using the following command:
 ChaosCLI --metadata-server mds_url:5000 --deviceid device_name --op 9 --rt-attr-val in_1:value
 */
-#include "DataImport.h"
-#include "AbstractDataImportDriver.h"
+#include "../core/DataImport.h"
+#include "../models/MemcachedDataImporterDriver.h"
 
 #include <string>
 
@@ -52,12 +52,9 @@ int main(int argc, char *argv[])
 		ChaosCUToolkit::getInstance()->init(argc, argv);
 
         //perform the driver and control unit registration
-        //REGISTER_DRIVER(,AbstractDataImportDriver);
+        REGISTER_DRIVER(,MemcachedDataImporterDriver);
         
         REGISTER_CU(DataImport);
-        
-		// register the control unit class
-		ChaosCUToolkit::getInstance()->registerControlUnit<DataImport>();
 
 		// start control unit toolkit until someone will close it
 		ChaosCUToolkit::getInstance()->start();

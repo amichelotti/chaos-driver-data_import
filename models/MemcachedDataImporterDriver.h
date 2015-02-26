@@ -29,7 +29,7 @@
 
 #include <string>
 
-#include <libmemcached/memcached.hpp>
+#include <libmemcached/memcached.h>
 
 DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(MemcachedDataImporterDriver)
 /*
@@ -39,7 +39,7 @@ class MemcachedDataImporterDriver:
 public AbstractDataImportDriver {
     std::string data_key;
     uint32_t data_pack_len;
-    memcache::Memcache *mc_client;
+    memcached_st *mc_client;
 protected:
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);

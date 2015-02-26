@@ -81,18 +81,24 @@ int AbstractDataImportDriver::readDataOffset(void* data_ptr,
 MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(DrvMsgPtr cmd) {
     MsgManagmentResultType::MsgManagmentResult result = MsgManagmentResultType::MMR_EXECUTED;
     switch(cmd->opcode) {
+        case DataImportDriverOpcode_FETCH_NEW_DATABLOCK:
+            if((cmd->ret = fetchData(buffer_data_block,
+                                     buffer_len))) {
+                ADIDLERR_<<"Error during the new datablock fetch command with code:" << cmd->ret;
+                result = MsgManagmentResultType::MMR_ERROR;
+            } else {
+                DEBUG_CODE(ADIDLDBG_ << "New datablock fetched";)
+            }
+            break;
+            
         case DataImportDriverOpcode_GET_DATA:
             uint32_t offset=cmd->parm[0];
             cmd->resultDataLength = (uint32_t)cmd->parm[1];
-            if(!fetchData(buffer_data_block,
-                          buffer_len)) {
-                ADIDLAPP_<<"Read offsett:"<<offset<<" lenght:"<<cmd->resultDataLength;
-                cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
-                if (cmd->ret != 0) {
-                    result = MsgManagmentResultType::MMR_ERROR;
-                }
-            } else {
+            ADIDLAPP_<<"Read offsett:"<<offset<<" lenght:"<<cmd->resultDataLength;
+            cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
+            if (cmd->ret != 0) {
                 ADIDLERR_<<"Data buffer of the message have lower size of the requested command [offset:"<<offset<<" lenght:"<<cmd->resultDataLength<<"]";
+                result = MsgManagmentResultType::MMR_ERROR;
             }
             break;
     }

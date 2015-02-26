@@ -37,6 +37,9 @@ public:
     
     DataImportDriverInterface(chaos::cu::driver_manager::driver::DriverAccessor*_accessor);
     ~DataImportDriverInterface();
+    
+    int fetchNewDatablock();
+    int readAttribute(void *attribute_ptr, int from, int len);
 };
 
 #endif /* defined(__DataImport__DataImportDriverInterface__) */
