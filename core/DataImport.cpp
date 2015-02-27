@@ -29,7 +29,7 @@ using namespace chaos::cu::driver_manager::driver;
 
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImport)
 
-#define DI_CUSTOM_HEAD "[" << getCUID() << " - " << getCUInstance() << " - "
+#define DI_CUSTOM_HEAD "[" << getCUID() << " - " << getCUInstance() << "] - "
 #define DILAPP_	INFO_LOG(DataImport) << DI_CUSTOM_HEAD
 #define DILDBG_	DBG_LOG(DataImport) << DI_CUSTOM_HEAD
 #define DILERR_	ERR_LOG(DataImport) << DI_CUSTOM_HEAD
@@ -84,21 +84,21 @@ DataImport::~DataImport() {
 //!
 int DataImport::decodeType(const std::string& str_type, DataType::DataType attribute_type) {
     int err = 0;
-    if(str_type.compare("int32")) {
+    if(str_type.compare("int32")==0) {
         attribute_type = DataType::TYPE_INT32;
-    } else if(str_type.compare("uint32")) {
+    } else if(str_type.compare("uint32")==0) {
         attribute_type = DataType::TYPE_INT64;
-    } else if(str_type.compare("int64")) {
+    } else if(str_type.compare("int64")==0) {
         attribute_type = DataType::TYPE_INT64;
-    } else if(str_type.compare("uint64")) {
+    } else if(str_type.compare("uint64")==0) {
         attribute_type = DataType::TYPE_INT64;
-    } else if(str_type.compare("double")) {
+    } else if(str_type.compare("double")==0) {
         attribute_type = DataType::TYPE_DOUBLE;
-    } else if(str_type.compare("string")) {
+    } else if(str_type.compare("string")==0) {
         attribute_type = DataType::TYPE_STRING;
-    } else if(str_type.compare("binary")) {
+    } else if(str_type.compare("binary")==0) {
         attribute_type = DataType::TYPE_BYTEARRAY;
-    } else if(str_type.compare("boolean")) {
+    } else if(str_type.compare("boolean")==0) {
         attribute_type = DataType::TYPE_BOOLEAN;
     } else {
         err = -1;

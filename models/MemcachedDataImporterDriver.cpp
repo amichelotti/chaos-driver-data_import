@@ -63,14 +63,13 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
     std::string                     host_port;
     std::vector<std::string>        host_port_vec;
     memcached_return_t              mc_result = MEMCACHED_SUCCESS;
-    if(mc_client == NULL) {
-        throw chaos::CException(-2, "Error allocating mc_client", __PRETTY_FUNCTION__);
-    }
     
     AbstractDataImportDriver::driverInit(initParameter);
     //parse json string
     std::string json_string(initParameter);
-    json_reader.parse(json_string, json_parameter);
+    if(!json_reader.parse(json_string, json_parameter)) {
+        throw chaos::CException(-1, "Json init paremeter has not been parsed", __PRETTY_FUNCTION__);
+    }
     
     DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "Received JOSN parameter:" << json_writer.write(json_parameter);)
     
@@ -81,37 +80,40 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
     
     //check madatory data
     if (json_server_urls.isNull()) {
-        throw chaos::CException(-1, "server_url is mandatory", __PRETTY_FUNCTION__);
+        throw chaos::CException(-2, "server_url is mandatory", __PRETTY_FUNCTION__);
     }
     
     if (!json_server_urls.isArray()) {
-        throw chaos::CException(-2, "server_url attribute need to be an array", __PRETTY_FUNCTION__);
+        throw chaos::CException(-3, "server_url attribute need to be an array", __PRETTY_FUNCTION__);
     }
     
     if (json_data_key.isNull()) {
-        throw chaos::CException(-2, "data_key attribute is mandatory", __PRETTY_FUNCTION__);
+        throw chaos::CException(-4, "data_key attribute is mandatory", __PRETTY_FUNCTION__);
     }
     
     if (!json_data_key.isString()) {
-        throw chaos::CException(-2, "data_key needs to be a string", __PRETTY_FUNCTION__);
+        throw chaos::CException(-5, "data_key needs to be a string", __PRETTY_FUNCTION__);
     }
  
     //get the key to use
     data_key = json_data_key.asString();
     
     if (json_data_pack_len.isNull()) {
-        throw chaos::CException(-2, "data_pack_len attribute is mandatory", __PRETTY_FUNCTION__);
+        throw chaos::CException(-6, "data_pack_len attribute is mandatory", __PRETTY_FUNCTION__);
     }
     
     if (!json_data_pack_len.isUInt()) {
-        throw chaos::CException(-2, "data_pack_len needs to be an unsigned int value", __PRETTY_FUNCTION__);
+        throw chaos::CException(-7, "data_pack_len needs to be an unsigned int value", __PRETTY_FUNCTION__);
     }
     //get the datpack len
     if(!growMem(json_data_pack_len.asUInt())) {
-        throw chaos::CException(-2, "Unable to allocate the memory for the data pack buffer", __PRETTY_FUNCTION__);
+        throw chaos::CException(-8, "Unable to allocate the memory for the data pack buffer", __PRETTY_FUNCTION__);
     }
     //allcoate mc client
     mc_client = memcached(NULL, 0);
+    if(mc_client == NULL) {
+        throw chaos::CException(-9, "Error allocating mc_client", __PRETTY_FUNCTION__);
+    }
     MemcachedDataImporterDriverLOG_MC_ERROR(mc_result = memcached_behavior_set(mc_client, MEMCACHED_BEHAVIOR_BINARY_PROTOCOL, (uint64_t)1))
     MemcachedDataImporterDriverLOG_MC_ERROR(mc_result = memcached_behavior_set(mc_client, MEMCACHED_BEHAVIOR_NO_BLOCK, (uint64_t)1))
     MemcachedDataImporterDriverLOG_MC_ERROR(mc_result = memcached_behavior_set(mc_client, MEMCACHED_BEHAVIOR_NOREPLY, (uint64_t)1))
@@ -139,19 +141,19 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
         
         //check if the host string is correct
         if(host_port_vec.size() != 2) {
-            throw chaos::CException(-3, "the single host url need to be of the form host:port", __PRETTY_FUNCTION__);
+            throw chaos::CException(-10, "the single host url need to be of the form host:port", __PRETTY_FUNCTION__);
         }
         
         try {
             //try adding server
-            DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "Adding server " << host_port[0];)
+            DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "Adding server " << host_port_vec[0];)
             
             if((mc_result = memcached_server_add(mc_client, host_port_vec[0].c_str(), boost::lexical_cast<in_port_t>(host_port_vec[1]))) != MEMCACHED_SUCCESS) {
                 MemcachedDataImporterDriverLOG_MC_ERROR(mc_result)
-                throw chaos::CException(-4, "Error adding server into memcache client", __PRETTY_FUNCTION__);
+                throw chaos::CException(-11, "Error adding server into memcache client", __PRETTY_FUNCTION__);
             }
         } catch(boost::bad_lexical_cast const& e) {
-            throw chaos::CException(-5, e.what(), __PRETTY_FUNCTION__);
+            throw chaos::CException(-12, e.what(), __PRETTY_FUNCTION__);
         }
     }
 }

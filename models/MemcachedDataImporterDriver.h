@@ -41,6 +41,11 @@ public AbstractDataImportDriver {
     uint32_t data_pack_len;
     memcached_st *mc_client;
 protected:
+    /*!
+     server_url:string array of format host:port
+     data_key:memcached key
+     data_pack_len:the lenght of the intere datapack to read
+     */
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     int  fetchData(void *buffer, unsigned int buffer_len);
