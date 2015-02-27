@@ -1,2 +1,3 @@
-data_import.xcodeproj/project.xcworkspace/xcshareddata/
-data_import.xcodeproj/xcuserdata/bisegni.xcuserdatad/xcdebugger/
+data_import.xcodeproj/project.xcworkspace/xcshareddata/*
+data_import.xcodeproj/xcuserdata/*
+data_import.xcodeproj/project.xcworkspace/xcuserdata/*
