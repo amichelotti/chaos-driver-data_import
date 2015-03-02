@@ -1,22 +1,26 @@
 cmake_minimum_required(VERSION 2.6)
+project(data_import)
 include($ENV{CHAOS_BUNDLE}/tools/project_template/CMakeChaos.txt)
 
-SET(DataImport_src source/main.cpp source/DataImport.cpp source/DataImportDriver.cpp )
+SET(data_import_src   core/DataImport.cpp
+                      core/AbstractDataImportDriver.cpp
+                      core/DataImportDriverInterface.cpp)
+SET(data_import_src   ${data_import_src}
+                      models/MemcachedDataImporterDriver.cpp)
 
-SET(DataImportClient_src test/DataImportClient.cpp )
+SET(data_import_lient_src test/main.cpp )
 
-ADD_EXECUTABLE(DataImport ${DataImport_src})
-ADD_EXECUTABLE(DataImportClient ${DataImportClient_src})
-
+ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
 IF(BUILD_FORCE_STATIC)
   SET(CMAKE_EXE_LINKER_FLAGS "-static -Wl,--whole-archive -lchaos_common -Wl,--no-whole-archive")
-TARGET_LINK_LIBRARIES(DataImport chaos_cutoolkit ${FrameworkLib})
-TARGET_LINK_LIBRARIES(DataImportClient chaos_uitoolkit ${FrameworkLib})
+   ADD_LIBRARY(chaos_data_import STATIC ${data_import_src})
+
 ELSE()
-TARGET_LINK_LIBRARIES(DataImport chaos_cutoolkit chaos_common ${FrameworkLib})
-TARGET_LINK_LIBRARIES(DataImportClient chaos_uitoolkit chaos_common ${FrameworkLib})
+    ADD_LIBRARY(chaos_data_import SHARED ${data_import_src})
+
 ENDIF()
+TARGET_LINK_LIBRARIES(chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
+TARGET_LINK_LIBRARIES(DataImportControlUnit chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
 
-
-INSTALL_TARGETS(/bin DataImport)
-INSTALL_TARGETS(/bin DataImportClient)
+INSTALL_TARGETS(/bin DataImportControlUnit)
+INSTALL_TARGETS(/lib chaos_data_import)
