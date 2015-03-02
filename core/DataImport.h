@@ -25,11 +25,13 @@
 #include <driver/data_import/core/DataImportDriverInterface.h>
 
 struct AttributeOffLen {
-    std::string name;
-    uint32_t    index;
-    uint32_t    offset;
-    uint32_t    len;
-    void        *buffer;
+    uint32_t                    index;
+    std::string                 name;
+    chaos::DataType::DataType   type;
+    uint32_t                    offset;
+    uint32_t                    len;
+    int                         lbe;//-1 no lbe, 0-little, 1-big
+    void                        *buffer;
 };
 
 typedef std::vector<AttributeOffLen*>               AttrbiuteOffLenVec;

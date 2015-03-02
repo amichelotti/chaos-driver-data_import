@@ -50,7 +50,7 @@ typedef enum DataImportDriverOpcode {
  */
 class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
     //is the buffer where the sublcass need to copy the while data pack
-    void *buffer_data_block;
+    char *buffer_data_block;
     uint32_t buffer_len;
 
     //read data from offset

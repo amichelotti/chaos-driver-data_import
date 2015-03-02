@@ -1,0 +1,44 @@
+{"server_url":["host:port",...],
+ "data_key":import_key,
+ "data_pack_len":29
+ }
+
+{
+  "dataset": [
+    {
+      "name": "ch_1",
+      "description": "ch_1",
+      "type": "string",
+      "offset": 0,
+      "len": 4
+    },
+    {
+      "name": "ch_2",
+      "description": "ch_2",
+      "type": "string",
+      "offset": 4,
+      "len": 10
+    },
+    {
+      "name": "ch_3",
+      "description": "ch_3",
+      "type": "string",
+      "offset": 14,
+      "len": 8
+    },
+    {
+      "name": "ch_4",
+      "description": "ch_4",
+      "type": "string",
+      "offset": 22,
+      "len": 3
+    },
+    {
+      "name": "ch_5",
+      "description": "ch_5",
+      "type": "string",
+      "offset": 25,
+      "len": 4
+    }
+  ]
+}

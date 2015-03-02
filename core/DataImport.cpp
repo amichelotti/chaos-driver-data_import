@@ -21,6 +21,8 @@
 #include <driver/data_import/core/DataImport.h>
 #include <driver/data_import/core/AbstractDataImportDriver.h>
 
+#include <chaos/common/utility/endianess.h>
+
 #include <json/json.h>
 
 using namespace chaos;
@@ -47,11 +49,11 @@ static const char * const ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_DESC = "The
 static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_DESC = "The attribute description need to be a string";
 static const char * const ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_TYPE = "The attribute type is mandatory";
 static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_TYPE = "The attribute type need to be a string of value[int32, int64, double, string, binary, boolean]";
-
 static const char * const ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_OFFSET = "The attribute offset is mandatory";
 static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_OFFSET = "The attribute offset need to be an integer";
 static const char * const ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_LENGHT = "The attribute lenght is mandatory";
 static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_LENGHT = "The attribute lenght need to be a n integer";
+static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_LBE = "The attribute lbe need to be a boolean";
 /*
  Construct
  */
@@ -98,7 +100,7 @@ int DataImport::decodeType(const std::string& str_type, DataType::DataType attri
         attribute_type = DataType::TYPE_STRING;
     } else if(str_type.compare("binary")==0) {
         attribute_type = DataType::TYPE_BYTEARRAY;
-    } else if(str_type.compare("boolean")==0) {
+    } else if(str_type.compare("boolean")==0 ) {
         attribute_type = DataType::TYPE_BOOLEAN;
     } else {
         err = -1;
@@ -126,7 +128,10 @@ int DataImport::decodeType(const std::string& str_type, DataType::DataType attri
  
  -the len is mandatory and represent how much data need to be copied
  "len": int
-
+ 
+ -optional for the numeric type, if it is set it will be used to convert to the
+ -hendian of the machine where run the control unit
+ "lbe":true(little)-false(big)
  }]
  }*/
 void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
@@ -160,7 +165,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         const Json::Value& json_attribute_type = (*it)["type"];
         const Json::Value& json_attribute_offset = (*it)["offset"];
         const Json::Value& json_attribute_len = (*it)["len"];
-        
+        const Json::Value& json_attribute_lbe = (*it)["lbe"];
         
         if(json_attribute_name.isNull()) {
             LOG_AND_THROW(-3, ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_NAME)
@@ -192,10 +197,14 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         if(!json_attribute_len.isInt()) {
             LOG_AND_THROW(-10, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_LENGHT)
         }
+        if(!json_attribute_lbe.isNull() && !json_attribute_lbe.isBool()) {
+            LOG_AND_THROW(-11, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_LBE)
+        }
+        
         
         DataType::DataType attribute_type = DataType::TYPE_INT32;
         if(decodeType(json_attribute_type.asString(), attribute_type)) {
-            LOG_AND_THROW(-9, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_TYPE)
+            LOG_AND_THROW(-12, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_TYPE)
         }
         
         //add the attribute and in case it is string or binary we need to check
@@ -227,8 +236,15 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         AttributeOffLen *vec = new AttributeOffLen();
         vec->index = idx++;
         vec->name = json_attribute_name.asString();
+        vec->type = attribute_type;
         vec->offset = json_attribute_offset.asInt();
         vec->len = json_attribute_len.asInt();
+        if(json_attribute_lbe.isNull()) {
+            vec->lbe = - 1;
+        }else {
+            vec->lbe = (int)json_attribute_lbe.asBool();
+        }
+        
         attribute_off_len_vec.push_back(vec);
     }
 }
@@ -246,7 +262,7 @@ void DataImport::unitInit() throw(chaos::CException) {
         it != attribute_off_len_vec.end();
         it++) {
         //get hte base address of the value form the cache
-        DILAPP_ "Get pointer forom cache for attribute " << (*it)->name;
+        DILAPP_ "Get pointer from cache for attribute " << (*it)->name;
         (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
         if((*it)->buffer == NULL) {
             throw chaos::CException(-1, "Error retriving pointer", __PRETTY_FUNCTION__);
@@ -274,6 +290,38 @@ void DataImport::unitRun() throw(chaos::CException) {
         //
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
+        }else if((*it)->lbe>=0){
+            //apply some filter if we need it
+            switch((*it)->type) {
+                case DataType::TYPE_INT32:
+                    if((*it)->lbe){
+                        *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::big_endian, int32_t>(*((int32_t*)(*it)->buffer));
+                    }else{
+                        *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::little_endian, int32_t>(*((int32_t*)(*it)->buffer));
+                    }
+                case DataType::TYPE_INT64:
+                    if((*it)->lbe){
+                        *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::big_endian, int64_t>(*((int64_t*)(*it)->buffer));
+                    }else{
+                        *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::little_endian, int64_t>(*((int64_t*)(*it)->buffer));
+                    }
+                case DataType::TYPE_DOUBLE:
+                    if((*it)->lbe){
+                        *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::big_endian, double>(*((double*)(*it)->buffer));
+                    }else{
+                        *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                        chaos::common::utility::little_endian, double>(*((double*)(*it)->buffer));
+                    }
+                    break;
+                    
+                default:
+                    break;
+            }
         }
     }
     

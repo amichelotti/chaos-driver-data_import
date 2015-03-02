@@ -42,9 +42,9 @@ public AbstractDataImportDriver {
     memcached_st *mc_client;
 protected:
     /*!
-     server_url:string array of format host:port
-     data_key:memcached key
-     data_pack_len:the lenght of the intere datapack to read
+     "server_url":["host:port",...]
+     "data_key":memcached string key
+     "data_pack_len":the lenght of the intere datapack to read
      */
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);

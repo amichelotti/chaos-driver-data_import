@@ -57,7 +57,7 @@ void AbstractDataImportDriver::driverDeinit() throw(chaos::CException) {
 }
 
 bool AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
-    if((buffer_data_block = std::realloc(buffer_data_block, new_mem_size)) != NULL) {
+    if((buffer_data_block = (char*)std::realloc(buffer_data_block, new_mem_size)) != NULL) {
         buffer_len = new_mem_size;
     }
     return buffer_data_block != NULL;
@@ -69,11 +69,9 @@ int AbstractDataImportDriver::readDataOffset(void* data_ptr,
                                              uint32_t lenght) {
     int err = 0;
     CHAOS_ASSERT(buffer_data_block)
-    //cast to char to simplify the pinter artimetic
-    const char * ch_casted_buf = static_cast<char*>(data_ptr);
-    
+    if((offset+lenght)>buffer_len) return -1;
     //copy seletected portion of data
-    std::memcpy(data_ptr, (ch_casted_buf+offset), lenght);
+    std::memcpy(data_ptr, (buffer_data_block+offset), lenght);
     return err;
 }
 
