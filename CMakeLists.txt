@@ -8,7 +8,7 @@ SET(data_import_src   core/DataImport.cpp
 SET(data_import_src   ${data_import_src}
                       models/MemcachedDataImporterDriver.cpp)
 
-SET(data_import_lient_src test/main.cpp )
+SET(data_import_lient_src source/main.cpp )
 
 ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
 IF(BUILD_FORCE_STATIC)
