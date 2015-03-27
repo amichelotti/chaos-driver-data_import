@@ -17,8 +17,8 @@
  *    	See the License for the specific language governing permissions and
  *    	limitations under the License.
  */
-#include <driver/data_import/core/DataImportDriverInterface.h>
-#include <driver/data_import//core/AbstractDataImportDriver.h>
+#include <driver/data-import/core/DataImportDriverInterface.h>
+#include <driver/data-import//core/AbstractDataImportDriver.h>
 
 #define DIDILAPP_	INFO_LOG(DataImportDriverInterface)
 #define DIDILDBG_	DBG_LOG(DataImportDriverInterface)

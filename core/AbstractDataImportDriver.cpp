@@ -18,7 +18,7 @@
  *    	limitations under the License.
  */
 
-#include <driver/data_import/core/AbstractDataImportDriver.h>
+#include <driver/data-import/core/AbstractDataImportDriver.h>
 
 #include <cstdlib>
 #include <string>

@@ -18,8 +18,8 @@
  *    	limitations under the License.
  */
 
-#include <driver/data_import/core/DataImport.h>
-#include <driver/data_import/core/AbstractDataImportDriver.h>
+#include <driver/data-import/core/DataImport.h>
+#include <driver/data-import/core/AbstractDataImportDriver.h>
 
 #include <chaos/common/utility/endianess.h>
 
