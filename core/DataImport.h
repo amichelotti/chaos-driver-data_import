@@ -21,7 +21,7 @@
 #ifndef ChaosRTControlUnit_DataImport_h
 #define ChaosRTControlUnit_DataImport_h
 
-#include <chaos/cu_toolkit/ControlManager/RTAbstractControlUnit.h>
+#include <chaos/cu_toolkit/control_manager/RTAbstractControlUnit.h>
 #include <driver/data-import/core/DataImportDriverInterface.h>
 
 struct AttributeOffLen {
