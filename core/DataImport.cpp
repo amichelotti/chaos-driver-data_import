@@ -79,7 +79,7 @@ DataImport::~DataImport() {
 }
 
 //!
-int DataImport::decodeType(const std::string& str_type, DataType::DataType attribute_type) {
+int DataImport::decodeType(const std::string& str_type, DataType::DataType& attribute_type) {
     int err = 0;
     if(str_type.compare("int32")==0) {
         attribute_type = DataType::TYPE_INT32;

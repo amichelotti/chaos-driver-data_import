@@ -57,7 +57,7 @@ public:
     ~DataImport();
     
     int decodeType(const std::string& str_type,
-                   chaos::DataType::DataType attribute_type);
+                   chaos::DataType::DataType& attribute_type);
     
 protected:
     /*!
