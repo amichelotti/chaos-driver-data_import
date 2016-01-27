@@ -1,0 +1,311 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 46;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		32E39FCC1C58C0DB009738C8 /* AbstractDataImportDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32E39FC11C58C0DB009738C8 /* AbstractDataImportDriver.cpp */; settings = {ASSET_TAGS = (); }; };
+		32E39FCD1C58C0DB009738C8 /* DataImport.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32E39FC31C58C0DB009738C8 /* DataImport.cpp */; settings = {ASSET_TAGS = (); }; };
+		32E39FCE1C58C0DB009738C8 /* DataImportDriverInterface.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32E39FC51C58C0DB009738C8 /* DataImportDriverInterface.cpp */; settings = {ASSET_TAGS = (); }; };
+		32E39FCF1C58C0DB009738C8 /* MemcachedDataImporterDriver.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32E39FC81C58C0DB009738C8 /* MemcachedDataImporterDriver.cpp */; settings = {ASSET_TAGS = (); }; };
+		32E39FD01C58C0DB009738C8 /* main.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 32E39FCB1C58C0DB009738C8 /* main.cpp */; settings = {ASSET_TAGS = (); }; };
+/* End PBXBuildFile section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		32E39FA01C58BFE2009738C8 /* CopyFiles */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = /usr/share/man/man1/;
+			dstSubfolderSpec = 0;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 1;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		32E39FA21C58BFE2009738C8 /* DataImport */ = {isa = PBXFileReference; explicitFileType = "compiled.mach-o.executable"; includeInIndex = 0; path = DataImport; sourceTree = BUILT_PRODUCTS_DIR; };
+		32E39FC11C58C0DB009738C8 /* AbstractDataImportDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = AbstractDataImportDriver.cpp; sourceTree = "<group>"; };
+		32E39FC21C58C0DB009738C8 /* AbstractDataImportDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AbstractDataImportDriver.h; sourceTree = "<group>"; };
+		32E39FC31C58C0DB009738C8 /* DataImport.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataImport.cpp; sourceTree = "<group>"; };
+		32E39FC41C58C0DB009738C8 /* DataImport.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataImport.h; sourceTree = "<group>"; };
+		32E39FC51C58C0DB009738C8 /* DataImportDriverInterface.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = DataImportDriverInterface.cpp; sourceTree = "<group>"; };
+		32E39FC61C58C0DB009738C8 /* DataImportDriverInterface.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataImportDriverInterface.h; sourceTree = "<group>"; };
+		32E39FC81C58C0DB009738C8 /* MemcachedDataImporterDriver.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = MemcachedDataImporterDriver.cpp; sourceTree = "<group>"; };
+		32E39FC91C58C0DB009738C8 /* MemcachedDataImporterDriver.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = MemcachedDataImporterDriver.h; sourceTree = "<group>"; };
+		32E39FCB1C58C0DB009738C8 /* main.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = main.cpp; sourceTree = "<group>"; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		32E39F9F1C58BFE2009738C8 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		32E39F991C58BFE2009738C8 = {
+			isa = PBXGroup;
+			children = (
+				32E39FC01C58C0DB009738C8 /* core */,
+				32E39FC71C58C0DB009738C8 /* models */,
+				32E39FCA1C58C0DB009738C8 /* source */,
+				32E39FA31C58BFE2009738C8 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		32E39FA31C58BFE2009738C8 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				32E39FA21C58BFE2009738C8 /* DataImport */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		32E39FC01C58C0DB009738C8 /* core */ = {
+			isa = PBXGroup;
+			children = (
+				32E39FC11C58C0DB009738C8 /* AbstractDataImportDriver.cpp */,
+				32E39FC21C58C0DB009738C8 /* AbstractDataImportDriver.h */,
+				32E39FC31C58C0DB009738C8 /* DataImport.cpp */,
+				32E39FC41C58C0DB009738C8 /* DataImport.h */,
+				32E39FC51C58C0DB009738C8 /* DataImportDriverInterface.cpp */,
+				32E39FC61C58C0DB009738C8 /* DataImportDriverInterface.h */,
+			);
+			path = core;
+			sourceTree = "<group>";
+		};
+		32E39FC71C58C0DB009738C8 /* models */ = {
+			isa = PBXGroup;
+			children = (
+				32E39FC81C58C0DB009738C8 /* MemcachedDataImporterDriver.cpp */,
+				32E39FC91C58C0DB009738C8 /* MemcachedDataImporterDriver.h */,
+			);
+			path = models;
+			sourceTree = "<group>";
+		};
+		32E39FCA1C58C0DB009738C8 /* source */ = {
+			isa = PBXGroup;
+			children = (
+				32E39FCB1C58C0DB009738C8 /* main.cpp */,
+			);
+			path = source;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		32E39FA11C58BFE2009738C8 /* DataImport */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 32E39FA91C58BFE2009738C8 /* Build configuration list for PBXNativeTarget "DataImport" */;
+			buildPhases = (
+				32E39F9E1C58BFE2009738C8 /* Sources */,
+				32E39F9F1C58BFE2009738C8 /* Frameworks */,
+				32E39FA01C58BFE2009738C8 /* CopyFiles */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = DataImport;
+			productName = DataImport;
+			productReference = 32E39FA21C58BFE2009738C8 /* DataImport */;
+			productType = "com.apple.product-type.tool";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		32E39F9A1C58BFE2009738C8 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				LastUpgradeCheck = 0700;
+				ORGANIZATIONNAME = bisegni;
+				TargetAttributes = {
+					32E39FA11C58BFE2009738C8 = {
+						CreatedOnToolsVersion = 7.0;
+					};
+				};
+			};
+			buildConfigurationList = 32E39F9D1C58BFE2009738C8 /* Build configuration list for PBXProject "DataImport" */;
+			compatibilityVersion = "Xcode 3.2";
+			developmentRegion = English;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+			);
+			mainGroup = 32E39F991C58BFE2009738C8;
+			productRefGroup = 32E39FA31C58BFE2009738C8 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				32E39FA11C58BFE2009738C8 /* DataImport */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXSourcesBuildPhase section */
+		32E39F9E1C58BFE2009738C8 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				32E39FCD1C58C0DB009738C8 /* DataImport.cpp in Sources */,
+				32E39FCE1C58C0DB009738C8 /* DataImportDriverInterface.cpp in Sources */,
+				32E39FCC1C58C0DB009738C8 /* AbstractDataImportDriver.cpp in Sources */,
+				32E39FD01C58C0DB009738C8 /* main.cpp in Sources */,
+				32E39FCF1C58C0DB009738C8 /* MemcachedDataImporterDriver.cpp in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		32E39FA71C58BFE2009738C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = macosx;
+			};
+			name = Debug;
+		};
+		32E39FA81C58BFE2009738C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++0x";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu99;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				MACOSX_DEPLOYMENT_TARGET = 10.11;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				SDKROOT = macosx;
+			};
+			name = Release;
+		};
+		32E39FAA1C58BFE2009738C8 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/../../usr/local/bin";
+				HEADER_SEARCH_PATHS = (
+					../../usr/local/include,
+					../../,
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../usr/local/lib";
+				OTHER_LDFLAGS = (
+					"-lchaos_common",
+					"-lchaos_cutoolkit",
+					"-ljsoncpp",
+					"-lmemcached",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Debug;
+		};
+		32E39FAB1C58BFE2009738C8 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CLANG_CXX_LANGUAGE_STANDARD = "compiler-default";
+				CLANG_CXX_LIBRARY = "libstdc++";
+				CONFIGURATION_BUILD_DIR = "$(SRCROOT)/../../usr/local/bin";
+				HEADER_SEARCH_PATHS = (
+					../../usr/local/include,
+					../../,
+				);
+				LIBRARY_SEARCH_PATHS = "$(SRCROOT)/../../usr/local/lib";
+				OTHER_LDFLAGS = (
+					"-lchaos_common",
+					"-lchaos_cutoolkit",
+					"-ljsoncpp",
+					"-lmemcached",
+				);
+				PRODUCT_NAME = "$(TARGET_NAME)";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		32E39F9D1C58BFE2009738C8 /* Build configuration list for PBXProject "DataImport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32E39FA71C58BFE2009738C8 /* Debug */,
+				32E39FA81C58BFE2009738C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		32E39FA91C58BFE2009738C8 /* Build configuration list for PBXNativeTarget "DataImport" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				32E39FAA1C58BFE2009738C8 /* Debug */,
+				32E39FAB1C58BFE2009738C8 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = 32E39F9A1C58BFE2009738C8 /* Project object */;
+}

@@ -64,7 +64,6 @@ RTAbstractControlUnit(_control_unit_id,
                       _control_unit_param,
                       _control_unit_drivers),
 driver_interface(NULL) {
-    driver_interface = new DataImportDriverInterface(getAccessoInstanceByIndex(0));
 }
 
 /*
@@ -76,10 +75,6 @@ DataImport::~DataImport() {
         it != attribute_off_len_vec.end();
         it++) {
         delete(*it);
-    }
-    
-    if(driver_interface){
-        delete(driver_interface);
     }
 }
 
@@ -139,7 +134,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
-    
+
     //parse json string
     DEBUG_CODE(DILDBG_ << "Try to parse received json parameter");
     if(!json_reader.parse(getCUParam(), json_parameter)) {
@@ -252,11 +247,13 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
 
 //!Define custom control unit attribute
 void DataImport::unitDefineCustomAttribute() {
-    
 }
 
 //!Initialize the Custom Control Unit
 void DataImport::unitInit() throw(chaos::CException) {
+    
+    driver_interface = new DataImportDriverInterface(getAccessoInstanceByIndex(0));
+    
     //check the value set on MDS for in_1 channel
     for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();
         it != attribute_off_len_vec.end();
@@ -336,7 +333,7 @@ void DataImport::unitStop() throw(chaos::CException) {
 
 //!Deinit the Control Unit
 void DataImport::unitDeinit() throw(chaos::CException) {
-    
+    if(driver_interface) delete(driver_interface);
 }
 
 //! pre imput attribute change
