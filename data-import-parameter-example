@@ -42,3 +42,5 @@
     }
   ]
 }
+
+if the field is an int64,32 or double the key “lbe” need to be used as boolean[true - big endian false- little endian] to specify the endianness of the source data
