@@ -4,7 +4,7 @@ include($ENV{CHAOS_BUNDLE}/tools/project_template/CMakeChaos.txt)
 
 SET(data_import_src   core/DataImport.cpp
                       core/AbstractDataImportDriver.cpp
-                      core/DataImportDriverInterface.cpp)
+                      core/DataImportDriverInterface.cpp core/RTChaos2Memcache.cpp)
 SET(data_import_src   ${data_import_src}
                       models/MemcachedDataImporterDriver.cpp)
 
@@ -19,8 +19,8 @@ ELSE()
     ADD_LIBRARY(chaos_data_import SHARED ${data_import_src})
 
 ENDIF()
-TARGET_LINK_LIBRARIES(chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
-TARGET_LINK_LIBRARIES(DataImportControlUnit chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
+TARGET_LINK_LIBRARIES(chaos_data_import chaos_cutoolkit chaos_common chaos_driver_misc ${FrameworkLib})
+TARGET_LINK_LIBRARIES(DataImportControlUnit chaos_data_import chaos_cutoolkit chaos_common chaos_driver_misc  ${FrameworkLib})
 
 INSTALL_TARGETS(/bin DataImportControlUnit)
 INSTALL_TARGETS(/lib chaos_data_import)
