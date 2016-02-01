@@ -975,6 +975,7 @@
         <in>AbstractDataImportDriver.cpp</in>
         <in>DataImport.cpp</in>
         <in>DataImportDriverInterface.cpp</in>
+        <in>RTChaos2Memcache.cpp</in>
       </df>
       <df name="models">
         <in>MemcachedDataImporterDriver.cpp</in>
@@ -1123,14 +1124,16 @@
         <rebuildPropChanged>false</rebuildPropChanged>
       </toolsSet>
       <flagsDictionary>
-        <element flagsID="0" commonFlags="-std=c89"/>
+        <element flagsID="0"
+                 commonFlags="-fPIC -fPIC -fPIC -fPIC -fPIC -fPIC -fPIC -fPIC -fPIC -fPIC -O3 -fPIC -O2"/>
+        <element flagsID="1" commonFlags="-std=c89"/>
       </flagsDictionary>
       <codeAssistance>
       </codeAssistance>
       <makefileType>
         <makeTool>
           <buildCommandWorkingDir>.</buildCommandWorkingDir>
-          <buildCommand>${MAKE} -f Makefile</buildCommand>
+          <buildCommand>${MAKE} -f Makefile install</buildCommand>
           <cleanCommand>${MAKE} -f Makefile clean</cleanCommand>
           <executablePath></executablePath>
         </makeTool>
@@ -1352,7 +1355,7 @@
             ex="false"
             tool="0"
             flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="../../external/libmemcached-1.0.18/libmemcached/behavior.cc"
@@ -1827,28 +1830,28 @@
             ex="false"
             tool="0"
             flavor2="2">
-        <cTool flags="0">
+        <cTool flags="1">
         </cTool>
       </item>
       <item path="/usr/share/cmake-2.8/Modules/CMakeCCompilerABI.c"
             ex="false"
             tool="0"
-            flavor2="0">
+            flavor2="2">
       </item>
       <item path="/usr/share/cmake-2.8/Modules/CMakeCXXCompilerABI.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
       </item>
       <item path="CMakeFiles/2.8.12.2/CompilerIdC/CMakeCCompilerId.c"
             ex="false"
             tool="0"
-            flavor2="0">
+            flavor2="2">
       </item>
       <item path="CMakeFiles/2.8.12.2/CompilerIdCXX/CMakeCXXCompilerId.cpp"
             ex="false"
             tool="1"
-            flavor2="0">
+            flavor2="4">
       </item>
       <item path="core/AbstractDataImportDriver.cpp" ex="false" tool="1" flavor2="4">
         <ccTool>
@@ -2190,6 +2193,21 @@
             <pElem>../../chaos-x86_64-dynamic-release/include</pElem>
             <pElem>.</pElem>
           </incDir>
+        </ccTool>
+      </item>
+      <item path="core/RTChaos2Memcache.cpp" ex="false" tool="1" flavor2="0">
+        <ccTool flags="0">
+          <incDir>
+            <pElem>.</pElem>
+            <pElem>../..</pElem>
+            <pElem>..</pElem>
+            <pElem>../../chaos-x86_64-dynamic-release/include</pElem>
+          </incDir>
+          <preprocessorList>
+            <Elem>CHAOS</Elem>
+            <Elem>NDEBUG</Elem>
+            <Elem>chaos_data_import_EXPORTS</Elem>
+          </preprocessorList>
         </ccTool>
       </item>
       <folder path="0/models">

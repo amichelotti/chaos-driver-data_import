@@ -29,7 +29,7 @@
 using namespace chaos;
 using namespace chaos::common::data::cache;
 using namespace chaos::cu::driver_manager::driver;
-using namespace driver::daq::btf;
+using namespace driver::data_import;
 using namespace driver::misc;
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(RTChaos2Memcache)
 
@@ -46,7 +46,7 @@ PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(RTChaos2Memcache)
 RTChaos2Memcache::RTChaos2Memcache(const string& _control_unit_id, const string& _control_unit_param, const ControlUnitDriverList& _control_unit_drivers):
 driver::misc::RTDataSync(_control_unit_id,_control_unit_param,_control_unit_drivers) {
     buffer=0;size=0;
-    
+    DPRINT("CREATED");
 }
 
 
@@ -60,15 +60,17 @@ RTChaos2Memcache::~RTChaos2Memcache() {
 }
 
 void RTChaos2Memcache::unitDefineActionAndDataset() throw(chaos::CException) {
+        DPRINT("Creating attributes");
+
      addAttributeToDataSet("memcacheurl",
 						  "Memcache server",
 						  DataType::TYPE_STRING,
-						  DataType::Input);
+						  DataType::Input,256);
      
      addAttributeToDataSet("memcachekey",
 						  "Memcache output key",
 						  DataType::TYPE_STRING,
-						  DataType::Input);
+						  DataType::Input,256);
      
     RTDataSync::unitDefineActionAndDataset();
     
@@ -80,6 +82,8 @@ void RTChaos2Memcache::unitDefineActionAndDataset() throw(chaos::CException) {
 //!Initialize the Custom Control Unit
 void RTChaos2Memcache::unitInit() throw(chaos::CException) {
     memcached_return_t              mc_result = MEMCACHED_SUCCESS;
+    DPRINT("INIT");
+
     std::vector<std::string> urls;
     const char*url=getAttributeCache()->getROPtr<char>(DOMAIN_INPUT, "memcacheurl");
     const char*key=getAttributeCache()->getROPtr<char>(DOMAIN_INPUT, "memcachekey");
@@ -106,7 +110,8 @@ void RTChaos2Memcache::unitInit() throw(chaos::CException) {
     server_url.assign(url);
     server_key.assign(key);
     boost::split(urls,server_url,boost::is_any_of(":"));
-    
+    DPRINT("Adding server %s",server_url.c_str());
+
   try {
             //try adding server
             
@@ -135,6 +140,7 @@ void RTChaos2Memcache::unitInit() throw(chaos::CException) {
 
 void RTChaos2Memcache::unitRun() throw(chaos::CException) {
     int off=0;
+    DPRINT("RUN");
      for (std::vector<ChaosDatasetAttribute*>::iterator i=rattrs.begin();i!=rattrs.end();i++){
         if((*i)->getDir()== chaos::DataType::Output){
             uint32_t siz;
@@ -150,6 +156,7 @@ void RTChaos2Memcache::unitRun() throw(chaos::CException) {
         }
         
     }
+    DPRINT("pushing %d bytest to %s key:%s",off,server_url.c_str(),server_key.c_str());
     memcached_set(mc_client,server_key.c_str(),server_key.length(),buffer,off,0,0);
     
   

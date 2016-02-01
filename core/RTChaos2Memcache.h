@@ -30,10 +30,9 @@
    
     namespace driver {
         
-        namespace daq {
-            namespace btf{
+        namespace data_import {
                 
-class RTChaos2Memcache : public driver::misc::RTDataSync {
+class RTChaos2Memcache : public ::driver::misc::RTDataSync {
 	PUBLISHABLE_CONTROL_UNIT_INTERFACE(RTChaos2Memcache)
 public:
     /*!
@@ -51,7 +50,7 @@ protected:
     std::string server_key;
     char *buffer;
     int size;
-    std::vector<driver::misc::ChaosDatasetAttribute*> rattrs;
+    std::vector< ::driver::misc::ChaosDatasetAttribute* > rattrs;
      
     /*!
 		Define the Control Unit Dataset and Actions
@@ -74,5 +73,5 @@ protected:
 
  
 };
-            }}}
+        }}
 #endif
