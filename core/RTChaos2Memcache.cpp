@@ -29,8 +29,8 @@
 using namespace chaos;
 using namespace chaos::common::data::cache;
 using namespace chaos::cu::driver_manager::driver;
-using namespace driver::data_import;
-using namespace driver::misc;
+using namespace ::driver::data_import;
+using namespace ::driver::misc;
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(RTChaos2Memcache)
 
 
@@ -44,7 +44,7 @@ PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(RTChaos2Memcache)
  Construct
  */
 RTChaos2Memcache::RTChaos2Memcache(const string& _control_unit_id, const string& _control_unit_param, const ControlUnitDriverList& _control_unit_drivers):
-driver::misc::RTDataSync(_control_unit_id,_control_unit_param,_control_unit_drivers) {
+::driver::misc::RTDataSync(_control_unit_id,_control_unit_param,_control_unit_drivers) {
     buffer=0;size=0;
     DPRINT("CREATED");
 }
