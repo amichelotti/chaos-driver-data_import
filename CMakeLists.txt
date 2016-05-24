@@ -6,7 +6,7 @@ SET(data_import_src   core/DataImport.cpp
                       core/AbstractDataImportDriver.cpp
                       core/DataImportDriverInterface.cpp core/RTChaos2Memcache.cpp)
 SET(data_import_src   ${data_import_src}
-                      models/MemcachedDataImporterDriver.cpp)
+                      models/MemcachedDataImporterDriver.cpp models/FilePosixDataImporterDriver.cpp)
 
 SET(data_import_lient_src source/main.cpp )
 

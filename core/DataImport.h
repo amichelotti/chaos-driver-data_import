@@ -73,7 +73,7 @@ protected:
      -the type of the attribute as: (u)int32, (u)int64, double, string, binary, boolean
      "type": string.
      
-     -the offset is mandatory and represent the start of the value within a datablock
+     -the offset/base is mandatory and represent the start of the value within a datablock
      "offset": int
      
      -the len is mandatory and represent how much data need to be copied
