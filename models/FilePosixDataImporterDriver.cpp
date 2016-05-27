@@ -17,7 +17,8 @@
  *    	See the License for the specific language governing permissions and
  *    	limitations under the License.
  */
-
+#include <stdlib.h>
+#include <string.h>
 #include <common/debug/core/debug.h>
 #define FilePosixDataImporterDriverLAPP_	INFO_LOG(FilePosixDataImporterDriver)
 #define FilePosixDataImporterDriverLDBG_	DBG_LOG(FilePosixDataImporterDriver)
@@ -134,22 +135,22 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 			ERR("requested length %d is invalid, tot available is %d",lenght,size);
 			return -1;
 		}
-		std::memcpy(data_ptr,buf+offset,lenght);
+		memcpy(data_ptr,buf+offset,lenght);
 		DPRINT("binary copy from off %d, lenght %d",offset,lenght);
 		return 0;
 	} else {
 		// treats as string
 		if(pnt==NULL){
-			pnt=std::strtok(buf,separator);
+			pnt=strtok(buf,separator);
 		} else {
-			pnt=std::strtok(NULL,separator);
+			pnt=strtok(NULL,separator);
 
 		}
 		if(pnt==NULL){
 			ERR("no other parameters")
 			return -2;
 		}
-		if(std::strchr(pnt,'.')){
+		if(strchr(pnt,'.')){
 			// contain . is a double
 			if(lenght==sizeof(float)){
 				sscanf(pnt,"%f",data_ptr);
@@ -162,13 +163,13 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 			return 0;
 		} else {
 			if(lenght==sizeof(int64_t)){
-				int64_t temp=std::strtoll(pnt,0,offset);
-				std::memcpy(data_ptr,(void*)&temp,lenght);
+				int64_t temp=strtoll(pnt,0,offset);
+				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int64_t :%lld [0x%llx] base:%d",*(double*)data_ptr,temp,temp,offset);
 				return 0;
 			} else if(lenght == sizeof(int32_t)){
-				int32_t temp=std::strtol(pnt,0,offset);
-				std::memcpy(data_ptr,(void*)&temp,lenght);
+				int32_t temp=strtol(pnt,0,offset);
+				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int32_t :%d [0xlx] base:%d",*(double*)data_ptr,temp,temp,offset);
 				return 0;
 			}
