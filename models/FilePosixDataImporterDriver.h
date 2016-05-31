@@ -30,7 +30,7 @@
 #include <string>
 
 #include <libmemcached/memcached.h>
-
+#include <boost/functional/hash.hpp>
 DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(FilePosixDataImporterDriver)
 /*
  driver definition
@@ -42,6 +42,8 @@ public AbstractDataImportDriver {
     std::string fileName;
     char*buf,*pnt;
     int size;
+    std::size_t last_hash,current_hash;
+
 
 protected:
     /*!

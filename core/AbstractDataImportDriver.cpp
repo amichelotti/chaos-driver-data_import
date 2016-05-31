@@ -96,7 +96,7 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
             cmd->resultDataLength = (uint32_t)cmd->parm[1];
             cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
             if (cmd->ret != 0) {
-                ADIDLERR_<<"Data buffer of the message have lower size of the requested command [offset:"<<offset<<" lenght:"<<cmd->resultDataLength<<"]";
+                ADIDLERR_<<"get data "<<offset<<" lenght:"<<cmd->resultDataLength<<" ret:"<<cmd->ret;
 
                 result = MsgManagmentResultType::MMR_ERROR;
             }

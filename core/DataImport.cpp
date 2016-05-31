@@ -142,7 +142,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     }
     
     //fetch value from json document
-    DEBUG_CODE(DILDBG_ << "Received JOSN parameter:" << json_writer.write(json_parameter);)
+    DEBUG_CODE(DILDBG_ << "Received JSON parameter:" << json_writer.write(json_parameter);)
     
     int idx = 0;
     const Json::Value& dataset_description = json_parameter["dataset"];
@@ -262,7 +262,7 @@ void DataImport::unitInit() throw(chaos::CException) {
         DILAPP_ "Get pointer from cache for attribute " << (*it)->name;
         (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
         if((*it)->buffer == NULL) {
-            throw chaos::CException(-1, "Error retriving pointer", __PRETTY_FUNCTION__);
+            throw chaos::CException(-1, "Error retrieving pointer", __PRETTY_FUNCTION__);
         }
     }
 }
@@ -277,8 +277,10 @@ void DataImport::unitRun() throw(chaos::CException) {
     int err = 0;
     //fetch new datablock
     if((err = driver_interface->fetchNewDatablock())) {
-       DILERR_ << "Error fetching new datablock with error" << err;
+       DILERR_ << "fetching NO datablock return:" << err;
+       return;
     }
+
 
     //fetch all single attribute f)rom datablock
     for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();

@@ -17,19 +17,21 @@
  *    	See the License for the specific language governing permissions and
  *    	limitations under the License.
  */
-
+#define DEBUG
 #include <common/debug/core/debug.h>
 #define FilePosixDataImporterDriverLAPP_	INFO_LOG(FilePosixDataImporterDriver)
 #define FilePosixDataImporterDriverLDBG_	DBG_LOG(FilePosixDataImporterDriver)
 #define FilePosixDataImporterDriverLERR_	ERR_LOG(FilePosixDataImporterDriver)
 #include <iostream>
 #include <fstream>
-
+#include <functional>
+#include <string>
 #define FilePosixDataImporterDriverLOG_MC_ERROR(x)\
 if(mc_result != MEMCACHED_SUCCESS) {\
 FilePosixDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 }
 
+#include <common/misc/data/core/DataSet.h>
 #include <driver/data-import/models/FilePosixDataImporterDriver.h>
 
 #include <json/json.h>
@@ -45,12 +47,66 @@ REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data
 REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data_pack_len [uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 
-
+/*
+ *
+ 2. e- current [mA]
+3. e+ current [mA]
+4. e+ rate [Hz]
+5. e- rate [Hz]
+6. linac mode
+7. number of e- bunches	#
+8. e- bunch 1-32 word	bit 32-1
+9. e- bunch 33-64 word	bit 32-1
+10. e- bunch 65-96 word	bit 32-1
+11. e- bunch 96-120 word bit 32-8
+12. number of e+ bunche	#
+13. e+ bunch 1-32 word	bit 32-1
+14. e+ bunch 33-64 word	bit 32-1
+15. e+ bunch 65-96 word	bit 32-1
+16. e+ bunch 96-120 wor	bit 32-8
+17. status e-
+18. status e+
+19. status DAFNE
+20. fill number	#
+21. e- lifetime
+22. e+ lifetime
+23. LumIP1 [cm-2 s-1]/1e28 --> SIDDHARTA Kaon Monitor [Hz] Jenuary 2008
+24. LumIP2 [cm-2 s-1]/1e28 --> LUMI Bhabha Monitor [Hz] Jannuary 2008
+25. interaction flag #
+26. RF frequency [Hz]
+27. Roundness e- [Ey/Ex]
+28. Roundness e+ [Ey/Ex]
+29. KLOE field	 [Gauss]
+30. BTF Energy [MeV]
+31. BTF Ploarity [-1=e+, +1=e-]
+32. BTF Target Line [1 bend line, 0 straght line]
+33. WID e- [mm]
+34. wid e- [mm]
+35. WID e+ [mm]
+36. wid e+ [mm]
+37. X BPMEL204	[mm]
+38. Y BPMEL204	[mm]
+39. X BPMEL205	[mm]
+40. Y BPMEL205	[mm]
+41. X BPMEL206	[mm]
+42. Y BPMEL206	[mm]
+43. X BPMEL207	[mm]
+44. Y BPMEL207	[mm]
+45. temperature I1001 [C]
+46. temperature I1002 [C]
+47. temperature I1003 [C]
+48. temperature I1004 [C]
+49. X BPMEL202	[mm]
+50. Y BPMEL202	[mm]
+51. X BPMEL203	[mm]
+52. Y BPMEL203	[mm]
+ */
 //GET_PLUGIN_CLASS_DEFINITION
 //we need to define the driver with alias version and a class that implement it
 FilePosixDataImporterDriver::FilePosixDataImporterDriver(){
 	size = 0;
 	buf=0;
+	last_hash=-1;
 
 }
 
@@ -98,6 +154,12 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
 }
 
 void FilePosixDataImporterDriver::driverDeinit() throw(chaos::CException) {
+	if(buf){
+		free(buf);
+		buf=NULL;
+		size =0;
+	}
+
 
 }
 
@@ -107,21 +169,33 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	pnt=NULL;
 
 	if(file.is_open()){
+		//got to end
+		file.seekg(0,file.end);
 		size = file.tellg();
-		if(size>0){
+		file.seekg(0,file.beg);
 
+		if(size>0){
+			std::size_t h=0;
 			buf = (char*)realloc(buf,size);
 			file.read(buf,size);
-			DPRINT("read %d bytes",size);
+			last_hash= current_hash;
+			current_hash =::common::misc::data::simpleHash(buf,size);
+
+			DPRINT("read tail %d bytes, hash 0x%x, last_hash 0x%x",size,current_hash,last_hash);
 
 		} else {
-			ERR("file is empty ");
+			ERR("file is empty %d",size);
 			return -1;
 		}
 
 		file.close();
+		if(current_hash==last_hash){
+			// not changed
+			DPRINT("not changed last hash 0x%x",last_hash);
+			return -100;
+		}
 	} else {
-		ERR("cannot open file");
+		ERR("cannot open file %s",fileName.c_str());
 		return -3;
 	}
 return 0;
@@ -138,6 +212,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 		DPRINT("binary copy from off %d, lenght %d",offset,lenght);
 		return 0;
 	} else {
+		DPRINT("parsing buffer \"%s\"",buf);
 		// treats as string
 		if(pnt==NULL){
 			pnt=std::strtok(buf,separator);
@@ -149,6 +224,8 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 			ERR("no other parameters")
 			return -2;
 		}
+		DPRINT("get token \"%s\"",pnt);
+
 		if(std::strchr(pnt,'.')){
 			// contain . is a double
 			if(lenght==sizeof(float)){
