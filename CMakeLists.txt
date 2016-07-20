@@ -1,6 +1,7 @@
 cmake_minimum_required(VERSION 2.6)
 project(chaos_data_import)
 include($ENV{CHAOS_BUNDLE}/tools/project_template/CMakeChaos.txt)
+ADD_DEFINITIONS(-std=c++11)
 
 SET(data_import_src   core/DataImport.cpp
                       core/AbstractDataImportDriver.cpp
@@ -19,8 +20,8 @@ ELSE()
     ADD_LIBRARY(${PROJECT_NAME} SHARED ${data_import_src})
 
 ENDIF()
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib})
-TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
+TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
 
 INSTALL_TARGETS(/bin DataImportControlUnit)
 INSTALL_TARGETS(/lib ${PROJECT_NAME})
