@@ -1,6 +1,6 @@
-cmake_minimum_required(VERSION 2.6)
+cmake_minimum_required(VERSION 2.8)
 project(chaos_data_import)
-include($ENV{CHAOS_BUNDLE}/tools/project_template/CMakeChaos.txt)
+
 ADD_DEFINITIONS(-std=c++11)
 
 SET(data_import_src   core/DataImport.cpp
