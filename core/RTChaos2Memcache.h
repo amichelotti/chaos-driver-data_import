@@ -21,10 +21,10 @@
 #define ChaosRTControlUnit_RTChaos2Memcache_h
 
 #include <chaos/cu_toolkit/control_manager/RTAbstractControlUnit.h>
-#include <driver/misc/ChaosControllerGroup.h>
-#include <driver/misc/ChaosDatasetAttribute.h>
-#include <driver/misc/ChaosDatasetAttributeSinchronizer.h>
-#include <driver/misc/RTDataSync.h>
+#include <driver/misc/core/ChaosControllerGroup.h>
+#include <driver/misc/core/ChaosDatasetAttribute.h>
+#include <driver/misc/core/ChaosDatasetAttributeSinchronizer.h>
+#include <driver/misc/core/RTDataSync.h>
 #include <libmemcached/memcached.h>
 
    
