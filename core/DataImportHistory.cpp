@@ -153,7 +153,7 @@ void DataImportHistory::unitInit() throw(chaos::CException) {
         (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
 
         if((*it)->buffer != NULL) {
-            history->add((*it)->name,(*it)->type, (*it)->buffer,(*it)->len);
+	  history->add((*it)->name,(*it)->type, (char*)(*it)->buffer,(*it)->len);
 
 
         } else {

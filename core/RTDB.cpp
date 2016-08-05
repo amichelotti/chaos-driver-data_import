@@ -116,7 +116,8 @@ void RTDB::addAttributeToDataSet(const std::string& attribute_name,
 		chaos::DataType::DataSetAttributeIOAttribute attribute_direction,bool historize,
 		uint32_t maxSize){
 	if(historize){
-		history->add(attribute_name,(::common::misc::data::dataTypes)attribute_type,(void*)0,maxSize);
+	  
+	  history->add(attribute_name,(::common::misc::data::dataTypes)attribute_type,(int*)NULL,maxSize);
 	}
 	chaos::cu::control_manager::RTAbstractControlUnit::addAttributeToDataSet(attribute_name,
 			attribute_description,
