@@ -11,7 +11,10 @@ IF (ENABLE_MEMCACHE)
 		      core/RTDB.cpp core/DataImportHistory.cpp
 		      models/MemcachedDataImporterDriver.cpp 
 		      models/FilePosixDataImporterDriver.cpp)
-  FILE(REMOVE UnitServerIgnore)
+		    FILE(REMOVE UnitServerIgnore)
+		    ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
+		    TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
+		    INSTALL_TARGETS(/bin DataImportControlUnit)
 ELSE()
   MESG(STATUS "memcache disabled")
   FILE(WRITE UnitServerIgnore "disabled ${PROJECT_NAME}")
@@ -22,9 +25,7 @@ ELSE()
 		      models/FilePosixDataImporterDriver.cpp)
 		    SET(data_import_lient_src source/main.cpp )
 
-		    ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
-		    TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
-		    INSTALL_TARGETS(/bin DataImportControlUnit)
+
 ENDIF()
 
 
