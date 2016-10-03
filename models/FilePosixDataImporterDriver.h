@@ -29,7 +29,6 @@
 
 #include <string>
 
-#include <libmemcached/memcached.h>
 #include <boost/functional/hash.hpp>
 DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(FilePosixDataImporterDriver)
 /*
