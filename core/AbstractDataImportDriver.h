@@ -54,11 +54,12 @@ class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
     uint32_t buffer_len;
 
     //read data from offset
-    int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
+
 protected:
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     virtual int fetchData(void *buffer, unsigned int buffer_len)=0;
+    virtual int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
     //! expand the datapack memory buffer
     bool growMem(unsigned int new_mem_size);
 public:

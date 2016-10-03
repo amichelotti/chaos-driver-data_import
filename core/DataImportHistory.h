@@ -1,8 +1,8 @@
 /*
- *	DataImport.h
+ *	DataImportHistory.h
  *	!CHOAS
- *	Created by Bisegni Claudio.
- *
+ *	Created by Andrea Michelotti
+ *  Import Data into DB
  *    	Copyright 2012 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,48 +18,35 @@
  *    	limitations under the License.
  */
 
-#ifndef ChaosRTControlUnit_DataImport_h
-#define ChaosRTControlUnit_DataImport_h
+#ifndef ChaosRTControlUnit_DataImportHistory_h
+#define ChaosRTControlUnit_DataImportHistory_h
 
 #include <chaos/cu_toolkit/control_manager/RTAbstractControlUnit.h>
 #include <driver/data-import/core/DataImportDriverInterface.h>
+#include <common/misc/data/core/DBbaseFactory.h>
+#include "DataImport.h"
 
-struct AttributeOffLen {
-    uint32_t                    index;
-    std::string                 name;
-    chaos::DataType::DataType   type;
-    uint32_t                    offset;
-    uint32_t                    len;
-    int                         lbe;//-1 no lbe, 0-little, 1-big
-    void                        *buffer;
-};
 
-typedef std::vector<AttributeOffLen*>               AttrbiuteOffLenVec;
-typedef std::vector<AttributeOffLen*>::iterator     AttrbiuteOffLenVecIterator;
+class DataImportHistory:public DataImport {
+    PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImportHistory)
+    ::common::misc::data::DataSet* history;
 
-class DataImport:
-public chaos::cu::control_manager::RTAbstractControlUnit {
-    PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImport)
-protected:
-    std::vector<AttributeOffLen*> attribute_off_len_vec;
-    
-    DataImportDriverInterface *driver_interface;
+    ::common::misc::data::DBbase* db;
+  //  {"db":{"dbtype":string,"dbname":string,"dbserver":string,"dbreplication":string}}
 public:
     /*!
      Construct a new CU with full constructor
      */
-    DataImport(const std::string& _control_unit_id,
+    DataImportHistory(const std::string& _control_unit_id,
                const std::string& _control_unit_param,
                const ControlUnitDriverList& _control_unit_drivers);
     /*!
      Destructor a new CU
      */
-    ~DataImport();
-    
-    int decodeType(const std::string& str_type,
-                   chaos::DataType::DataType& attribute_type);
-    
+    ~DataImportHistory();
+
 protected:
+
     /*!
      read the json control unit load parameter need to create the dataset form the data to import.
      The json format is like the template below:

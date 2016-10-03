@@ -1,26 +1,27 @@
-cmake_minimum_required(VERSION 2.6)
-project(data_import)
-include($ENV{CHAOS_BUNDLE}/tools/project_template/CMakeChaos.txt)
+cmake_minimum_required(VERSION 2.8)
+project(chaos_data_import)
+
+ADD_DEFINITIONS(-std=c++11)
 
 SET(data_import_src   core/DataImport.cpp
                       core/AbstractDataImportDriver.cpp
-                      core/DataImportDriverInterface.cpp)
+                      core/DataImportDriverInterface.cpp core/RTChaos2Memcache.cpp core/RTDB.cpp core/DataImportHistory.cpp)
 SET(data_import_src   ${data_import_src}
-                      models/MemcachedDataImporterDriver.cpp)
+                      models/MemcachedDataImporterDriver.cpp models/FilePosixDataImporterDriver.cpp)
 
 SET(data_import_lient_src source/main.cpp )
 
 ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
 IF(BUILD_FORCE_STATIC)
   SET(CMAKE_EXE_LINKER_FLAGS "-static -Wl,--whole-archive -lchaos_common -Wl,--no-whole-archive")
-   ADD_LIBRARY(chaos_data_import STATIC ${data_import_src})
+   ADD_LIBRARY(${PROJECT_NAME} STATIC ${data_import_src})
 
 ELSE()
-    ADD_LIBRARY(chaos_data_import SHARED ${data_import_src})
+    ADD_LIBRARY(${PROJECT_NAME} SHARED ${data_import_src})
 
 ENDIF()
-TARGET_LINK_LIBRARIES(chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
-TARGET_LINK_LIBRARIES(DataImportControlUnit chaos_data_import chaos_cutoolkit chaos_common ${FrameworkLib})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
+TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
 
 INSTALL_TARGETS(/bin DataImportControlUnit)
-INSTALL_TARGETS(/lib chaos_data_import)
+INSTALL_TARGETS(/lib ${PROJECT_NAME})

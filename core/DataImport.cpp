@@ -64,7 +64,6 @@ RTAbstractControlUnit(_control_unit_id,
                       _control_unit_param,
                       _control_unit_drivers),
 driver_interface(NULL) {
-    driver_interface = new DataImportDriverInterface(getAccessoInstanceByIndex(0));
 }
 
 /*
@@ -77,14 +76,10 @@ DataImport::~DataImport() {
         it++) {
         delete(*it);
     }
-    
-    if(driver_interface){
-        delete(driver_interface);
-    }
 }
 
 //!
-int DataImport::decodeType(const std::string& str_type, DataType::DataType attribute_type) {
+int DataImport::decodeType(const std::string& str_type, DataType::DataType& attribute_type) {
     int err = 0;
     if(str_type.compare("int32")==0) {
         attribute_type = DataType::TYPE_INT32;
@@ -139,7 +134,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
-    
+
     //parse json string
     DEBUG_CODE(DILDBG_ << "Try to parse received json parameter");
     if(!json_reader.parse(getCUParam(), json_parameter)) {
@@ -147,7 +142,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     }
     
     //fetch value from json document
-    DEBUG_CODE(DILDBG_ << "Received JOSN parameter:" << json_writer.write(json_parameter);)
+    DEBUG_CODE(DILDBG_ << "Received JSON parameter:" << json_writer.write(json_parameter);)
     
     int idx = 0;
     const Json::Value& dataset_description = json_parameter["dataset"];
@@ -252,11 +247,13 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
 
 //!Define custom control unit attribute
 void DataImport::unitDefineCustomAttribute() {
-    
 }
 
 //!Initialize the Custom Control Unit
 void DataImport::unitInit() throw(chaos::CException) {
+    
+    driver_interface = new DataImportDriverInterface(getAccessoInstanceByIndex(0));
+    
     //check the value set on MDS for in_1 channel
     for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();
         it != attribute_off_len_vec.end();
@@ -265,7 +262,7 @@ void DataImport::unitInit() throw(chaos::CException) {
         DILAPP_ "Get pointer from cache for attribute " << (*it)->name;
         (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
         if((*it)->buffer == NULL) {
-            throw chaos::CException(-1, "Error retriving pointer", __PRETTY_FUNCTION__);
+            throw chaos::CException(-1, "Error retrieving pointer", __PRETTY_FUNCTION__);
         }
     }
 }
@@ -280,8 +277,10 @@ void DataImport::unitRun() throw(chaos::CException) {
     int err = 0;
     //fetch new datablock
     if((err = driver_interface->fetchNewDatablock())) {
-       DILERR_ << "Error fetching new datablock with error" << err;
+       DILERR_ << "fetching NO datablock return:" << err;
+       return;
     }
+
 
     //fetch all single attribute f)rom datablock
     for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();
@@ -336,7 +335,7 @@ void DataImport::unitStop() throw(chaos::CException) {
 
 //!Deinit the Control Unit
 void DataImport::unitDeinit() throw(chaos::CException) {
-    
+    if(driver_interface) delete(driver_interface);
 }
 
 //! pre imput attribute change
