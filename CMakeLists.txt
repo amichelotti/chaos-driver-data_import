@@ -15,6 +15,7 @@ IF (ENABLE_MEMCACHE)
 		    ADD_EXECUTABLE(DataImportControlUnit ${data_import_lient_src})
 		    TARGET_LINK_LIBRARIES(DataImportControlUnit ${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
 		    INSTALL_TARGETS(/bin DataImportControlUnit)
+		    SET(lib memcached)
 ELSE()
   MESG(STATUS "memcache disabled")
   FILE(WRITE UnitServerIgnore "disabled ${PROJECT_NAME}")
@@ -37,7 +38,7 @@ ELSE()
   ADD_LIBRARY(${PROJECT_NAME} SHARED ${data_import_src})
 
 ENDIF()
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} memcached)
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} ${lib})
 
 
 
