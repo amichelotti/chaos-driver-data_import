@@ -1,6 +1,6 @@
 /*
  *	MemcachedDataImporterDriver.cpp
- *	!CHOAS
+ *	!CHAOS
  *	Created by Bisegni Claudio.
  *
  *    	Copyright 2012 INFN, National Institute of Nuclear Physics
@@ -27,7 +27,7 @@ if(mc_result != MEMCACHED_SUCCESS) {\
 MemcachedDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 }
 
-#include <driver/data-import/models/MemcachedDataImporterDriver.h>
+#include <driver/data-import/models/memcache/MemcachedDataImporterDriver.h>
 
 #include <json/json.h>
 
