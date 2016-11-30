@@ -35,7 +35,7 @@ FilePosixDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 }
 
 #include <common/misc/data/core/DataSet.h>
-#include <driver/data-import/models/FilePosixDataImporterDriver.h>
+#include <driver/data-import/models/posixFile/FilePosixDataImporterDriver.h>
 
 #include <json/json.h>
 

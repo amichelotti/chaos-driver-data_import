@@ -28,8 +28,8 @@ ChaosCLI --metadata-server mds_url:5000 --deviceid device_name --print-dataset [
 the set of the input channel can be done (for simple format) using the following command:
 ChaosCLI --metadata-server mds_url:5000 --deviceid device_name --op 9 --rt-attr-val in_1:value
 */
-#include "../core/DataImport.h"
-#include "../models/MemcachedDataImporterDriver.h"
+#include <driver/data-import/core/DataImport.h>
+#include <driver/data-import/models/memcache/MemcachedDataImporterDriver.h>
 
 #include <string>
 
