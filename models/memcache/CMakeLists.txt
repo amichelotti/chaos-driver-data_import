@@ -16,4 +16,4 @@ TARGET_LINK_LIBRARIES(${PROJECT_NAME} memcached pthread chaos_cutoolkit chaos_co
 TARGET_LINK_LIBRARIES(memcacheImport ${PROJECT_NAME} chaos_data_import memcached pthread chaos_cutoolkit chaos_common boost_random ${FrameworkLib})
 SET(DRIVERS_LIB ${DRIVERS_LIB} ${PROJECT_NAME} PARENT_SCOPE)
 installHeaders(.)
-
+INSTALL_TARGETS(/lib ${PROJECT_NAME})
