@@ -42,6 +42,14 @@ typedef enum DataImportDriverOpcode {
 } DataImportDriverOpcode;
 
 
+enum DataImportReturnCodes{
+  DATA_IMPORT_NO_ERROR,
+  DATA_IMPORT_NO_CHANGE,
+  DATA_IMPORT_NO_DATA,
+  DATA_IMPORT_CANNOT_ACCESS_DATA,
+  DATA_IMPORT_DECODE_ERROR,
+};
+
 /*
  This is the abstract base driver for all driver that will act as importer.
  The subclass need to fetch a DataPack from his transport layer. The abstraction will

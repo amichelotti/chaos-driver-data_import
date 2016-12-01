@@ -276,7 +276,12 @@ void DataImport::unitStart() throw(chaos::CException) {
 void DataImport::unitRun() throw(chaos::CException) {
     int err = 0;
     //fetch new datablock
+    DILDBG_<<" Fetch from driver";
     if((err = driver_interface->fetchNewDatablock())) {
+      if(err==  DATA_IMPORT_NO_CHANGE){
+	DILDBG_<<" No Data Change";
+	return;
+      }
        DILERR_ << "fetching NO datablock return:" << err;
        return;
     }
@@ -287,6 +292,7 @@ void DataImport::unitRun() throw(chaos::CException) {
         it != attribute_off_len_vec.end();
         it++) {
         //
+      DILDBG_<<" reading attribute idx:"<<(*it)->index<<" name:"<<(*it)->name;
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
         }else if((*it)->lbe>=0){
@@ -323,7 +329,7 @@ void DataImport::unitRun() throw(chaos::CException) {
             }
         }
     }
-    
+    DILDBG_<<" done";
     //! set output dataset as changed
     getAttributeCache()->setOutputDomainAsChanged();
 }

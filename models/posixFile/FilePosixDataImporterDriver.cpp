@@ -151,7 +151,7 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
     }
 
     fileName=filename.asString();
-	DPRINT("File name %s, separator :'%c'",fileName.c_str(),separator);
+    DPRINT("File name %s, separator :'%c'",fileName.c_str(),separator);
 
 
 }
@@ -170,38 +170,38 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 
 	std::ifstream file(fileName.c_str(),std::ios::in);
 	pnt=NULL;
-
+	FilePosixDataImporterDriverLDBG_ << "Reading "<<fileName.c_str();
 	if(file.is_open()){
-		//got to end
-		file.seekg(0,file.end);
-		size = file.tellg();
-		file.seekg(0,file.beg);
-
-		if(size>0){
-			std::size_t h=0;
-			buf = (char*)realloc(buf,size);
-			file.read(buf,size);
-			last_hash= current_hash;
-			current_hash =::common::misc::data::simpleHash(buf,size);
-
-			DPRINT("read tail %d bytes, hash 0x%x, last_hash 0x%x",size,current_hash,last_hash);
-
-		} else {
-			ERR("file is empty %d",size);
-			return -1;
-		}
-
-		file.close();
-		if(current_hash==last_hash){
-			// not changed
-			DPRINT("not changed last hash 0x%x",last_hash);
-			return -100;
-		}
+	  //got to end
+	  file.seekg(0,file.end);
+	  size = file.tellg();
+	  file.seekg(0,file.beg);
+	  
+	  if(size>0){
+	    std::size_t h=0;
+	    buf = (char*)realloc(buf,size);
+	    file.read(buf,size);
+	    last_hash= current_hash;
+	    current_hash =::common::misc::data::simpleHash(buf,size);
+	    
+	    DPRINT("read tail %d bytes, hash 0x%x, last_hash 0x%x",size,current_hash,last_hash);
+	    
+	  } else {
+	    ERR("file is empty %d",size);
+	    return DATA_IMPORT_NO_DATA;
+	  }
+	  
+	  file.close();
+	  if(current_hash==last_hash){
+	    // not changed
+	    DPRINT("not changed last hash 0x%x",last_hash);
+	    return DATA_IMPORT_NO_CHANGE;
+	  }
 	} else {
-		ERR("cannot open file %s",fileName.c_str());
-		return -3;
+	  ERR("cannot open file %s",fileName.c_str());
+	  return DATA_IMPORT_CANNOT_ACCESS_DATA;
 	}
-return 0;
+	return 0;
 }
 
 int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght){
@@ -225,7 +225,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 		}
 		if(pnt==NULL){
 			ERR("no other parameters")
-			return -2;
+			return DATA_IMPORT_DECODE_ERROR;
 		}
 		DPRINT("get token \"%s\"",pnt);
 
@@ -256,7 +256,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 		}
 	}
 	ERR("error parsing");
-	return -100;
+	return DATA_IMPORT_DECODE_ERROR;
 }
 
 
