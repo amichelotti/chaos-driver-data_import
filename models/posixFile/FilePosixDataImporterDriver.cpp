@@ -18,7 +18,7 @@
  *    	limitations under the License.
  */
 
-#define DEBUG
+
 #include <stdlib.h>
 #include <string.h>
 #include <common/debug/core/debug.h>
