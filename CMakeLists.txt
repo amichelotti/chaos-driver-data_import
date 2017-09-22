@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8)
-project(chaos_data_import)
+project(chaos_driver_data_import)
 
 
 add_subdirectory(models)

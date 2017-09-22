@@ -83,8 +83,8 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
         case DataImportDriverOpcode_FETCH_NEW_DATABLOCK:
             if((cmd->ret = fetchData(buffer_data_block,
                                      buffer_len))) {
-                ADIDLERR_<<"Error during the new datablock fetch command with code:" << cmd->ret;
-                result = MsgManagmentResultType::MMR_ERROR;
+	      //ADIDLERR_<<"Error during the new datablock fetch command with code:" << cmd->ret;
+	      //result = MsgManagmentResultType::MMR_ERROR;
             } else {
                 DEBUG_CODE(ADIDLDBG_ << "New datablock fetched";)
             }
@@ -96,9 +96,9 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
             cmd->resultDataLength = (uint32_t)cmd->parm[1];
             cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
             if (cmd->ret != 0) {
-                ADIDLERR_<<"get data "<<offset<<" lenght:"<<cmd->resultDataLength<<" ret:"<<cmd->ret;
+	      //                ADIDLERR_<<"get data "<<offset<<" lenght:"<<cmd->resultDataLength<<" ret:"<<cmd->ret;
 
-                result = MsgManagmentResultType::MMR_ERROR;
+	      //                result = MsgManagmentResultType::MMR_ERROR;
             }
             break;
     }
