@@ -37,7 +37,7 @@ DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(MemcachedDataImporterDriver)
  */
 class MemcachedDataImporterDriver:
 public AbstractDataImportDriver {
-    std::string data_key;
+    std::vector<std::string> data_keys;
     uint32_t data_pack_len;
     memcached_st *mc_client;
 protected:
