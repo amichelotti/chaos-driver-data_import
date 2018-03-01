@@ -111,11 +111,11 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
         throw chaos::CException(-6, "data_pack_len attribute is mandatory", __PRETTY_FUNCTION__);
     }
     
-    if (!json_data_pack_len.isUInt()) {
-        throw chaos::CException(-7, "data_pack_len needs to be an unsigned int value", __PRETTY_FUNCTION__);
+    if (!json_data_pack_len.isInt()) {
+        throw chaos::CException(-7, "data_pack_len needs to be an  int value", __PRETTY_FUNCTION__);
     }
     //get the datpack len
-    if(!growMem(json_data_pack_len.asUInt())) {
+    if(!growMem(json_data_pack_len.asInt())) {
         throw chaos::CException(-8, "Unable to allocate the memory for the data pack buffer", __PRETTY_FUNCTION__);
     }
     //allcoate mc client
