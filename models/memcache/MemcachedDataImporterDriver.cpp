@@ -50,6 +50,8 @@ mc_client(NULL) {
 }
 
 MemcachedDataImporterDriver::~MemcachedDataImporterDriver() {
+    DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "DEINIT MEMCACHED");
+
     if(mc_client){
         memcached_free(mc_client);
         mc_client = NULL;

@@ -50,6 +50,5 @@ int DataImportDriverInterface::readAttribute(void *attribute_ptr, int from, int 
     message.resultData = attribute_ptr;
     ret2=accessor->send(&message);
     ret=message.ret;
-    DEBUG_CODE(DIDILDBG_<<"readAttribute offset:"<<from<<", len:"<<len<<",func ret:"<<ret<<",accessor ret "<<ret2;)
     return ret;
 }
