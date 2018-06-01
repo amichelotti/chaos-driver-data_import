@@ -1,5 +1,7 @@
 cmake_minimum_required(VERSION 2.8)
 project(chaos_driver_data_import)
+find_package(chaos MODULE REQUIRED)
+include_directories(../../ ${chaos_INCLUDE_DIRS})
 
 
 add_subdirectory(models)
