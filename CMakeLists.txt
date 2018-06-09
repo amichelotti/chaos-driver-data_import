@@ -24,4 +24,6 @@ ENDIF()
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} ${lib})
 
 INSTALL_TARGETS(/lib ${PROJECT_NAME})
-installHeaders(core)
+FILE(GLOB files "core/*.h")
+INSTALL(FILES ${files} DESTINATION include/driver/data-import/core)
+
