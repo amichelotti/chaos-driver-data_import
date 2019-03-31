@@ -292,7 +292,6 @@ void DataImport::unitRun() throw(chaos::CException) {
         it != attribute_off_len_vec.end();
         it++) {
         //
-      DILDBG_<<" reading attribute idx:"<<(*it)->index<<" name:"<<(*it)->name;
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
         }else if((*it)->lbe>=0){
@@ -306,6 +305,8 @@ void DataImport::unitRun() throw(chaos::CException) {
                         *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, int32_t>(*((int32_t*)(*it)->buffer));
                     }
+                    DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
+                break;
                 case DataType::TYPE_INT64:
                     if((*it)->lbe){
                         *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
@@ -314,6 +315,9 @@ void DataImport::unitRun() throw(chaos::CException) {
                         *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, int64_t>(*((int64_t*)(*it)->buffer));
                     }
+                    DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
+                break;
+
                 case DataType::TYPE_DOUBLE:
                     if((*it)->lbe){
                         *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
@@ -322,6 +326,8 @@ void DataImport::unitRun() throw(chaos::CException) {
                         *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, double>(*((double*)(*it)->buffer));
                     }
+                    DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
+
                     break;
                     
                 default:

@@ -37,13 +37,13 @@ DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(MemcachedDataImporterDriver)
  */
 class MemcachedDataImporterDriver:
 public AbstractDataImportDriver {
-    std::string data_key;
+    std::vector<std::string> data_keys;
     uint32_t data_pack_len;
     memcached_st *mc_client;
 protected:
     /*!
      "server_url":["host:port",...]
-     "data_key":memcached string key
+     "data_keys":memcached key array
      "data_pack_len":the lenght of the intere datapack to read
      */
     void driverInit(const char *initParameter) throw(chaos::CException);

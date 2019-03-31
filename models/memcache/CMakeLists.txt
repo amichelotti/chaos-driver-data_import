@@ -15,5 +15,7 @@ ADD_EXECUTABLE(memcacheImport test/main.cpp)
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} memcached pthread chaos_cutoolkit chaos_common boost_random ${FrameworkLib})
 TARGET_LINK_LIBRARIES(memcacheImport ${PROJECT_NAME} chaos_driver_data_import memcached pthread chaos_cutoolkit chaos_common boost_random ${FrameworkLib})
 SET(DRIVERS_LIB ${DRIVERS_LIB} ${PROJECT_NAME} PARENT_SCOPE)
-installHeaders(.)
+FILE(GLOB files "*.h")
+INSTALL(FILES ${files} DESTINATION include/driver/data-import/models/memcache)
+
 INSTALL_TARGETS(/lib ${PROJECT_NAME})

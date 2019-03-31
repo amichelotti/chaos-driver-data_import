@@ -42,7 +42,7 @@ using namespace chaos::cu::driver_manager;
 
 #define OPT_CUSTOM_DEVICE_ID "device_id"
 
-int main(int argc, char *argv[])
+int main(int argc, const char *argv[])
 {
 	string tmp_device_id;
 	control_manager::AbstractControlUnit::ControlUnitDriverList driver_list;

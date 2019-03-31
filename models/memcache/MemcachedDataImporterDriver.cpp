@@ -38,7 +38,7 @@ MemcachedDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 //we need only to define the driver because we don't are makeing a plugin
 OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(MemcachedDataImporterDriver, 1.0.0, MemcachedDataImporterDriver)
 REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver, data_key [string])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver, data_keys [array of strings])
 REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver, data_pack_len [uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 
@@ -50,6 +50,8 @@ mc_client(NULL) {
 }
 
 MemcachedDataImporterDriver::~MemcachedDataImporterDriver() {
+    DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "DEINIT MEMCACHED");
+
     if(mc_client){
         memcached_free(mc_client);
         mc_client = NULL;
@@ -75,7 +77,7 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
     
     //fetch value from json document
     const Json::Value& json_server_urls = json_parameter["server_url"];
-    const Json::Value& json_data_key = json_parameter["data_key"];
+    const Json::Value& json_data_key = json_parameter["data_keys"];
     const Json::Value& json_data_pack_len= json_parameter["data_pack_len"];
     
     //check madatory data
@@ -88,25 +90,34 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
     }
     
     if (json_data_key.isNull()) {
-        throw chaos::CException(-4, "data_key attribute is mandatory", __PRETTY_FUNCTION__);
+        throw chaos::CException(-4, "data_keys attribute is mandatory", __PRETTY_FUNCTION__);
     }
-    
-    if (!json_data_key.isString()) {
-        throw chaos::CException(-5, "data_key needs to be a string", __PRETTY_FUNCTION__);
+    if (json_data_key.isArray()) {
+        for (Json::ValueConstIterator it = json_data_key.begin();
+             it != json_data_key.end();
+             ++it) {
+            if(!it->isString()){
+                throw chaos::CException(-6, "data_keys element must be a string", __PRETTY_FUNCTION__);
+            }
+            data_keys.push_back(it->asString());
+        }
+    } else if (json_data_key.isString()) {
+        data_keys.push_back(json_data_key.asString());
+    } else {
+        throw chaos::CException(-5, "data_keys needs to be a vector of strings or a string", __PRETTY_FUNCTION__);
+
     }
  
-    //get the key to use
-    data_key = json_data_key.asString();
     
     if (json_data_pack_len.isNull()) {
         throw chaos::CException(-6, "data_pack_len attribute is mandatory", __PRETTY_FUNCTION__);
     }
     
-    if (!json_data_pack_len.isUInt()) {
-        throw chaos::CException(-7, "data_pack_len needs to be an unsigned int value", __PRETTY_FUNCTION__);
+    if (!json_data_pack_len.isInt()) {
+        throw chaos::CException(-7, "data_pack_len needs to be an  int value", __PRETTY_FUNCTION__);
     }
     //get the datpack len
-    if(!growMem(json_data_pack_len.asUInt())) {
+    if(!growMem(json_data_pack_len.asInt())) {
         throw chaos::CException(-8, "Unable to allocate the memory for the data pack buffer", __PRETTY_FUNCTION__);
     }
     //allcoate mc client
@@ -172,28 +183,33 @@ int MemcachedDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
     uint32_t flags= 0;
     memcached_return_t rc;
     size_t value_length= 0;
-    
+    int tot_size=0;
+    for (std::vector<std::string>::iterator it=data_keys.begin();it!=data_keys.end();it++){
     //get the value form memcached
     char *value = memcached_get(mc_client,
-                                data_key.c_str(),
-                                data_key.length(),
+                                (*it).c_str(),
+                               (*it).length(),
                                 &value_length,
                                 &flags,
                                 &rc);
     //check if we have something
     if (value != NULL) {
-        if(value_length != buffer_len) {
+        if(value_length > buffer_len) {
             err = -1;
-            MemcachedDataImporterDriverLERR_ << "The found value for key " << data_key << " doesn't match the data pack lenght";
+            MemcachedDataImporterDriverLERR_ << "The found value for key " << *it << " doesn't fit into the buffer";
         } else {
+            char *pnt=((char*)buffer)+tot_size;
             //copy data to main buffer
-            std::memcpy(buffer, (const char*)value, buffer_len);
+            std::memcpy((void*)pnt, (const char*)value, value_length);
+            tot_size+=value_length;
+            buffer_len-=value_length;
+            MemcachedDataImporterDriverLDBG_<<"READ["<<*it<<"] size:"<<value_length;
         }
         free(value);
-    }else {
-            MemcachedDataImporterDriverLERR_ << "Error retriving data from key " <<data_key;
+    } else {
+            MemcachedDataImporterDriverLERR_ << "Error retriving data from key " <<*it;
             err = -2;
     }
-    
+    }
     return err;
 }
