@@ -179,7 +179,8 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	  
 	  if(size>0){
 	    std::size_t h=0;
-	    buf = (char*)realloc(buf,size);
+	    buf = (char*)realloc(buf,size+1);
+		buf[size]=0;
 	    file.read(buf,size);
 	    last_hash= current_hash;
 	    current_hash =::common::misc::data::simpleHash(buf,size);

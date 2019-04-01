@@ -13,5 +13,7 @@ ENDIF()
 
 TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_driver_data_import pthread chaos_cutoolkit chaos_common boost_random ${FrameworkLib})
 SET(DRIVERS_LIB ${DRIVERS_LIB} ${PROJECT_NAME} PARENT_SCOPE)
-installHeaders(.)
+FILE(GLOB files "*.h")
+INSTALL(FILES ${files} DESTINATION include/driver/data-import/models/posixFile)
+
 INSTALL_TARGETS(/lib ${PROJECT_NAME})
