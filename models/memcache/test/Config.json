@@ -1,0 +1,27 @@
+{
+    "us": [
+	{
+	    "unit_server_alias": "TEST",
+	    "private_key": null,
+	    "public_key": null,
+	    "cu_desc": [{
+            "unit_server_alias": "TEST",
+            "cu_id": "TEST_IMPORT",
+            "cu_type": "DataImport",
+            "cu_param": "{\"dataset\": [{\"name\": \"current\",\"description\": \"readout current\",\"type\": \"double\",\"factor\": 1.1,\"offset\": 24,\"len\": 8}]}",
+		"auto_load": true,
+                "auto_start":true,
+                "auto_init":true,
+                "storage_type": 2,
+                "storage_ageing": 36000,
+		"default_schedule_delay": 1000000,	
+            "DriverDescription": [
+                {
+                    "DriverDescriptionName": "MemcachedDataImporterDriver",
+                    "DriverDescriptionVersion": "1.0.0",
+                    "DriverDescriptionInitParam": "{\"server_url\":[\"testchaos.lnf.infn.it:11211\"],\"data_key\":\"DCTEL002_DYN\",\"data_pack_len\":256}"
+                }
+            ],
+            "AttrDesc": [
+            ]
+            }}}]}
