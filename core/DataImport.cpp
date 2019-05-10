@@ -161,7 +161,8 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         const Json::Value& json_attribute_offset = (*it)["offset"];
         const Json::Value& json_attribute_len = (*it)["len"];
         const Json::Value& json_attribute_lbe = (*it)["lbe"];
-        
+        const Json::Value& json_attribute_factor = (*it)["factor"];
+
         if(json_attribute_name.isNull()) {
             LOG_AND_THROW(-3, ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_NAME)
         }
@@ -216,8 +217,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
                 break;
                 
                 
-            case DataType::TYPE_STRING:
-            case DataType::TYPE_BYTEARRAY:
+            default:
                 addAttributeToDataSet(json_attribute_name.asString().c_str(),
                                       json_attribute_description.asString().c_str(),
                                       (DataType::DataType)attribute_type,
@@ -234,6 +234,11 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         vec->type = attribute_type;
         vec->offset = json_attribute_offset.asInt();
         vec->len = json_attribute_len.asInt();
+        if(json_attribute_factor.isNull() || !json_attribute_factor.isDouble()){
+            vec->factor=0.0;
+        } else {
+            vec->factor=json_attribute_factor.asDouble();
+        }
         if(json_attribute_lbe.isNull()) {
             vec->lbe = - 1;
         }else {
@@ -305,6 +310,9 @@ void DataImport::unitRun() throw(chaos::CException) {
                         *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, int32_t>(*((int32_t*)(*it)->buffer));
                     }
+                    if((*it)->factor){
+                         *((int32_t*)(*it)->buffer) =  *((int32_t*)(*it)->buffer) *(*it)->factor;
+                    }
                     DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
                 break;
                 case DataType::TYPE_INT64:
@@ -325,6 +333,9 @@ void DataImport::unitRun() throw(chaos::CException) {
                     }else{
                         *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, double>(*((double*)(*it)->buffer));
+                    }
+                    if((*it)->factor){
+                         *((double*)(*it)->buffer)= *((double*)(*it)->buffer)*(*it)->factor;
                     }
                     DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
 
