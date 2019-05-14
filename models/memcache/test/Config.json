@@ -8,7 +8,7 @@
             "unit_server_alias": "TEST",
             "cu_id": "TEST_IMPORT",
             "cu_type": "DataImport",
-            "cu_param": "{\"dataset\": [{\"name\": \"current\",\"description\": \"readout current\",\"type\": \"double\",\"factor\": 1.1,\"offset\": 24,\"len\": 8}]}",
+            "cu_param": "{\"dataset\": [{\"name\": \"current\",\"description\": \"readout current\",\"type\": \"double\",\"factor\": 1.1,\"offset\": 24,\"len\": 8,\"lbe\":true}]}",
 		"auto_load": true,
                 "auto_start":true,
                 "auto_init":true,
@@ -19,9 +19,10 @@
                 {
                     "DriverDescriptionName": "MemcachedDataImporterDriver",
                     "DriverDescriptionVersion": "1.0.0",
-                    "DriverDescriptionInitParam": "{\"server_url\":[\"testchaos.lnf.infn.it:11211\"],\"data_key\":\"DCTEL002_DYN\",\"data_pack_len\":256}"
+                    "DriverDescriptionInitParam": "{\"server_url\":[\"192.168.192.107:11211\"],\"data_keys\":\"DCTEL002_DYN\",\"data_pack_len\":256}"
                 }
             ],
             "AttrDesc": [
             ]
-            }}}]}
+            }]}]
+        }

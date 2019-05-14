@@ -204,6 +204,22 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         
         //add the attribute and in case it is string or binary we need to check
         //the max size attribute
+        AttributeOffLen *vec = new AttributeOffLen();
+        vec->len = json_attribute_len.asInt();
+        switch(attribute_type) {
+            case DataType::TYPE_INT32:
+                vec->len=sizeof(int32_t);
+                break;
+            case DataType::TYPE_INT64:
+                vec->len=sizeof(int64_t);
+                break;
+            case DataType::TYPE_DOUBLE:
+                vec->len=sizeof(double);
+                break;
+            case DataType::TYPE_BOOLEAN:
+                vec->len=sizeof(bool);
+                break;
+        };
         switch(attribute_type) {
             case DataType::TYPE_INT32:
             case DataType::TYPE_INT64:
@@ -228,12 +244,10 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         }
         
         //add the attribute slot intto the vector
-        AttributeOffLen *vec = new AttributeOffLen();
         vec->index = idx++;
         vec->name = json_attribute_name.asString();
         vec->type = attribute_type;
         vec->offset = json_attribute_offset.asInt();
-        vec->len = json_attribute_len.asInt();
         if(json_attribute_lbe.isNull()) {
             vec->lbe = - 1;
         }else {
