@@ -30,6 +30,7 @@ struct AttributeOffLen {
     chaos::DataType::DataType   type;
     uint32_t                    offset;
     uint32_t                    len;
+    double                      factor; //conversion factor if any
     int                         lbe;//-1 no lbe, 0-little, 1-big
     void                        *buffer;
 };
