@@ -40,6 +40,8 @@ public:
     
     int fetchNewDatablock();
     int readAttribute(void *attribute_ptr, int from, int len);
+    int readAttribute(void *attribute_ptr, const std::string& key,int from, int len);
+
 };
 
 #endif /* defined(__DataImport__DataImportDriverInterface__) */

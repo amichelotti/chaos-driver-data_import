@@ -38,7 +38,7 @@ int DataImportDriverInterface::fetchNewDatablock() {
     message.opcode = DataImportDriverOpcode_FETCH_NEW_DATABLOCK;
     ret2=accessor->send(&message);
     ret=message.ret;
-    DEBUG_CODE(DIDILDBG_<<"fetchNewDatablock,func ret:"<<ret<<",accessor ret "<<ret2;)
+   // DEBUG_CODE(DIDILDBG_<<"fetchNewDatablock,func ret:"<<ret<<",accessor ret "<<ret2;)
     return ret;
 }
 
@@ -49,6 +49,21 @@ int DataImportDriverInterface::readAttribute(void *attribute_ptr, int from, int 
     message.opcode = DataImportDriverOpcode_GET_DATA;
     message.resultData = attribute_ptr;
     ret2=accessor->send(&message);
+    ret=message.ret;
+    return ret;
+}
+int DataImportDriverInterface::readAttribute(void *attribute_ptr, const std::string& key,int from, int len){
+    int ret,ret2;
+    message.parm[0] = from;
+    message.parm[1] = len;
+    message.inputData=(void*)strdup(key.c_str());
+    message.inputDataLength=key.size() +1;
+    message.opcode = DataImportDriverOpcode_GET_KEY_DATA;
+    message.resultData = attribute_ptr;
+    ret2=accessor->send(&message);
+    if(message.inputData){
+        free(message.inputData);
+    }
     ret=message.ret;
     return ret;
 }

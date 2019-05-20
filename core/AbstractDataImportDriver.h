@@ -38,7 +38,8 @@ typedef enum DataImportDriverOpcode {
      
      cmd->resultDataLength = lenght;
      */
-	DataImportDriverOpcode_GET_DATA
+	DataImportDriverOpcode_GET_DATA,
+    DataImportDriverOpcode_GET_KEY_DATA
 } DataImportDriverOpcode;
 
 
@@ -58,16 +59,19 @@ enum DataImportReturnCodes{
  */
 class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
     //is the buffer where the sublcass need to copy the while data pack
-    char *buffer_data_block;
-    uint32_t buffer_len;
+    
 
     //read data from offset
 
 protected:
+    char *buffer_data_block;
+    uint32_t buffer_len;
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     virtual int fetchData(void *buffer, unsigned int buffer_len)=0;
     virtual int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
+    virtual int readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght);
+
     //! expand the datapack memory buffer
     bool growMem(unsigned int new_mem_size);
 public:

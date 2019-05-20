@@ -73,7 +73,7 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
         throw chaos::CException(-1, "Json init paremeter has not been parsed", __PRETTY_FUNCTION__);
     }
     
-    DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "Received JOSN parameter:" << json_writer.write(json_parameter);)
+    DEBUG_CODE(MemcachedDataImporterDriverLDBG_ << "Received JSON parameter:" << json_writer.write(json_parameter);)
     
     //fetch value from json document
     const Json::Value& json_server_urls = json_parameter["server_url"];
@@ -103,6 +103,7 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(ch
         }
     } else if (json_data_key.isString()) {
         data_keys.push_back(json_data_key.asString());
+        key2off[json_data_key.asString()]=0;
     } else {
         throw chaos::CException(-5, "data_keys needs to be a vector of strings or a string", __PRETTY_FUNCTION__);
 
@@ -199,6 +200,7 @@ int MemcachedDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
             MemcachedDataImporterDriverLERR_ << "The found value for key " << *it << " doesn't fit into the buffer";
         } else {
             char *pnt=((char*)buffer)+tot_size;
+            key2off[*it]=tot_size;
             //copy data to main buffer
             std::memcpy((void*)pnt, (const char*)value, value_length);
             tot_size+=value_length;
@@ -210,6 +212,18 @@ int MemcachedDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
             MemcachedDataImporterDriverLERR_ << "Error retriving data from key " <<*it;
             err = -2;
     }
+    }
+    return err;
+}
+int MemcachedDataImporterDriver::readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght){
+    int err = 0;
+    CHAOS_ASSERT(buffer_data_block)
+    if((offset+lenght)>buffer_len) return -1;
+    //copy seletected portion of data
+    if(key==""){
+        std::memcpy(data_ptr, (buffer_data_block+key2off[key]+offset), lenght);
+    } else {
+        std::memcpy(data_ptr, (buffer_data_block+key2off[key]+offset), lenght);
     }
     return err;
 }
