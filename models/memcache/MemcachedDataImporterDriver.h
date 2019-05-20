@@ -40,6 +40,8 @@ public AbstractDataImportDriver {
     std::vector<std::string> data_keys;
     uint32_t data_pack_len;
     memcached_st *mc_client;
+    std::map<std::string,uint32_t> key2off;
+    
 protected:
     /*!
      "server_url":["host:port",...]
@@ -49,6 +51,7 @@ protected:
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     int  fetchData(void *buffer, unsigned int buffer_len);
+    int readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght);
 public:
     MemcachedDataImporterDriver();
     ~MemcachedDataImporterDriver();
