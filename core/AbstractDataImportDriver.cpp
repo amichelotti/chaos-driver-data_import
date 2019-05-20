@@ -75,7 +75,10 @@ int AbstractDataImportDriver::readDataOffset(void* data_ptr,
     return err;
 }
 
-
+int  AbstractDataImportDriver::readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght){
+    ADIDLERR_<<" not implemented: key:"<<key<<" off:"<<offset<<" len:"<<lenght;
+    return -1;
+}
 //! Execute a command
 MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(DrvMsgPtr cmd) {
     MsgManagmentResultType::MsgManagmentResult result = MsgManagmentResultType::MMR_EXECUTED;
@@ -91,7 +94,7 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
             break;
 
             
-        case DataImportDriverOpcode_GET_DATA:
+        case DataImportDriverOpcode_GET_DATA:{
             uint32_t offset=cmd->parm[0];
             cmd->resultDataLength = (uint32_t)cmd->parm[1];
             cmd->ret = readDataOffset(cmd->resultData, offset, cmd->resultDataLength);
@@ -101,6 +104,19 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
 	      //                result = MsgManagmentResultType::MMR_ERROR;
             }
             break;
+        }
+         case DataImportDriverOpcode_GET_KEY_DATA:{
+            uint32_t offset=cmd->parm[0];
+            cmd->resultDataLength = (uint32_t)cmd->parm[1];
+            std::string arg((const char*)cmd->inputData);
+            cmd->ret = readDataOffset(cmd->resultData, arg,offset, cmd->resultDataLength);
+            if (cmd->ret != 0) {
+	      //                ADIDLERR_<<"get data "<<offset<<" lenght:"<<cmd->resultDataLength<<" ret:"<<cmd->ret;
+
+	      //                result = MsgManagmentResultType::MMR_ERROR;
+            }
+            break;
+         }
     }
     return result;
 }

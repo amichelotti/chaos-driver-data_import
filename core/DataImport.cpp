@@ -31,7 +31,7 @@ using namespace chaos::cu::driver_manager::driver;
 
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImport)
 
-#define DI_CUSTOM_HEAD "[" << getCUID() << " - " << getCUInstance() << "] - "
+#define DI_CUSTOM_HEAD "[" << getCUID()<< "] - "
 #define DILAPP_	INFO_LOG(DataImport) << DI_CUSTOM_HEAD
 #define DILDBG_	DBG_LOG(DataImport) << DI_CUSTOM_HEAD
 #define DILERR_	ERR_LOG(DataImport) << DI_CUSTOM_HEAD
@@ -162,6 +162,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         const Json::Value& json_attribute_len = (*it)["len"];
         const Json::Value& json_attribute_lbe = (*it)["lbe"];
         const Json::Value& json_attribute_factor = (*it)["factor"];
+        const Json::Value& key_bind = (*it)["keybind"];
 
         if(json_attribute_name.isNull()) {
             LOG_AND_THROW(-3, ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_NAME)
@@ -249,18 +250,24 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
         vec->type = attribute_type;
         vec->offset = json_attribute_offset.asInt();
         vec->len = json_attribute_len.asInt();
-        if(json_attribute_factor.isNull() || !json_attribute_factor.isDouble()){
+         if(json_attribute_factor.isNull() || !json_attribute_factor.isDouble()){
             vec->factor=0.0;
         } else {
             vec->factor=json_attribute_factor.asDouble();
         }
+        if(key_bind.isNull() || !key_bind.isString()){
+            vec->keybind="";
+        } else {
+            vec->keybind=key_bind.asString();
+        }
 
         if(json_attribute_lbe.isNull()) {
-            vec->lbe = - 1;
+            vec->lbe = false;
         }else {
             vec->lbe = (int)json_attribute_lbe.asBool();
         }
-        
+        vec->old_buffer=malloc(vec->len);
+        DILDBG_<<"Attribute "<< vec->name<<"["<<vec->keybind<<"]"<<" +"<<vec->offset<<" type:"<<vec->type<<" len:"<<vec->len<<" factor:"<<vec->factor<<" LBE:"<<vec->lbe;
         attribute_off_len_vec.push_back(vec);
     }
 }
@@ -285,6 +292,7 @@ void DataImport::unitInit() throw(chaos::CException) {
         if((*it)->buffer == NULL) {
             throw chaos::CException(-1, "Error retrieving pointer", __PRETTY_FUNCTION__);
         }
+        
     }
 }
 
@@ -296,6 +304,7 @@ void DataImport::unitStart() throw(chaos::CException) {
 //!Execute the Control Unit work
 void DataImport::unitRun() throw(chaos::CException) {
     int err = 0;
+    bool changed=false;
     //fetch new datablock
     DILDBG_<<" Fetch from driver";
     if((err = driver_interface->fetchNewDatablock())) {
@@ -313,9 +322,14 @@ void DataImport::unitRun() throw(chaos::CException) {
         it != attribute_off_len_vec.end();
         it++) {
         //
-        if((err = driver_interface->readAttribute((*it)->buffer, (*it)->offset, (*it)->len))) {
+        if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
         }else if((*it)->lbe>=0){
+             if(memcmp((*it)->buffer,(*it)->old_buffer,(*it)->len)){
+                changed=true;
+                memcpy((*it)->old_buffer,(*it)->buffer,(*it)->len);
+            }
+            
             //apply some filter if we need it
             switch((*it)->type) {
                 case DataType::TYPE_INT32:
@@ -329,7 +343,8 @@ void DataImport::unitRun() throw(chaos::CException) {
                     if((*it)->factor){
                          *((int32_t*)(*it)->buffer) =  *((int32_t*)(*it)->buffer) *(*it)->factor;
                     }
-                    DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
+                    DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
+                   
                 break;
                 case DataType::TYPE_INT64:
                     if((*it)->lbe){
@@ -339,7 +354,7 @@ void DataImport::unitRun() throw(chaos::CException) {
                         *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                         chaos::common::utility::little_endian, int64_t>(*((int64_t*)(*it)->buffer));
                     }
-                    DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
+                    DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
                 break;
 
                 case DataType::TYPE_DOUBLE:
@@ -353,7 +368,7 @@ void DataImport::unitRun() throw(chaos::CException) {
                     if((*it)->factor){
                          *((double*)(*it)->buffer)= *((double*)(*it)->buffer)*(*it)->factor;
                     }
-                    DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<" off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
+                    DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
 
                     break;
                     
@@ -362,9 +377,13 @@ void DataImport::unitRun() throw(chaos::CException) {
             }
         }
     }
-    DILDBG_<<" done";
+    if(changed){
     //! set output dataset as changed
-    getAttributeCache()->setOutputDomainAsChanged();
+        getAttributeCache()->setOutputDomainAsChanged();
+    } else {
+        DILDBG_<<" Nothing changed";
+ 
+    }
 }
 
 //!Execute the Control Unit work
