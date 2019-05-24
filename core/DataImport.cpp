@@ -138,6 +138,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     //parse json string
     DEBUG_CODE(DILDBG_ << "Try to parse received json parameter");
     if(!json_reader.parse(getCUParam(), json_parameter)) {
+        DILERR_<<" RECEIVED:"<<getCUParam();
         LOG_AND_THROW(-1, ERROR_MSG_BAD_JSON_PARAMETER)
     }
     
