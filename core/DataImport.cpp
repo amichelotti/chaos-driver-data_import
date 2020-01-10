@@ -20,7 +20,7 @@
 
 #include <driver/data-import/core/DataImport.h>
 #include <driver/data-import/core/AbstractDataImportDriver.h>
-
+#include <chaos/cu_toolkit/control_manager/ControlUnitTypes.h>
 #include <chaos/common/utility/endianess.h>
 
 #include <json/json.h>
@@ -28,6 +28,7 @@
 using namespace chaos;
 using namespace chaos::common::data::cache;
 using namespace chaos::cu::driver_manager::driver;
+using namespace chaos::cu::control_manager;
 
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImport)
 
@@ -134,6 +135,8 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
+    addStateVariable(StateVariableTypeAlarmCU, "fetching_key","Error fetching key");
+    addStateVariable(StateVariableTypeAlarmCU, "fetching_data_block","Error fetching data block");
 
     //parse json string
     DEBUG_CODE(DILDBG_ << "Try to parse received json parameter");
@@ -308,12 +311,19 @@ void DataImport::unitRun() throw(chaos::CException) {
     bool changed=false;
     //fetch new datablock
     DILDBG_<<" Fetch from driver";
+	setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key", chaos::common::alarm::MultiSeverityAlarmLevelClear);
+	setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelClear);
+
     if((err = driver_interface->fetchNewDatablock())) {
       if(err==  DATA_IMPORT_NO_CHANGE){
-	DILDBG_<<" No Data Change";
-	return;
+	    DILDBG_<<" No Data Change";
+        setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
+
+	    return;
       }
        DILERR_ << "fetching NO datablock return:" << err;
+       	setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+
        return;
     }
 
@@ -325,6 +335,9 @@ void DataImport::unitRun() throw(chaos::CException) {
         //
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
+            setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+            metadataLogging(chaos::common::metadata_logging::StandardLoggingChannel::LogLevelError, boost::str(boost::format("Error fetching key '%1%") %  (*it)->name ));
+
         }else if((*it)->lbe>=0){
              if(memcmp((*it)->buffer,(*it)->old_buffer,(*it)->len)){
                 changed=true;

@@ -66,6 +66,7 @@ class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
 protected:
     char *buffer_data_block;
     uint32_t buffer_len;
+    std::map<std::string,bool> data_results; //result of key
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     virtual int fetchData(void *buffer, unsigned int buffer_len)=0;
