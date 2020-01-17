@@ -42,7 +42,7 @@ public AbstractDataImportDriver {
     char*buf,*pnt;
     int size;
     std::size_t last_hash,current_hash;
-
+    bool allLines; // reads from begain or tail
 
 protected:
     bool timeDependentName;
@@ -54,7 +54,7 @@ protected:
     void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
     int  fetchData(void *buffer, unsigned int buffer_len);
-    int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
+    int readDataOffset(void* data_ptr, const std::string &key, uint32_t offset, uint32_t lenght);
 public:
     FilePosixDataImporterDriver();
     ~FilePosixDataImporterDriver();

@@ -111,6 +111,7 @@ FilePosixDataImporterDriver::FilePosixDataImporterDriver(){
 	buf=0;
 	last_hash=-1;
     timeDependentName=false;
+	allLines=false;
 
 }
 
@@ -136,6 +137,7 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
     //fetch value from json document
     const Json::Value& filename= json_parameter["file_name"];
 	const Json::Value& filename_time= json_parameter["file_time_name"];
+	const Json::Value& all_lines= json_parameter["all_line"];
 
     const Json::Value& sseparator = json_parameter["separator"];
     
@@ -146,7 +148,9 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
     	std::strncpy(separator, s.c_str(),2);
 
     }
-    
+    if(all_lines.isBool()){
+		allLines=all_lines.asBool();
+	}
     
     //check madatory data
     if (filename.isNull()) {
@@ -206,9 +210,46 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	  
 	  if(size>0){
 	    std::size_t h=0;
-	    buf = (char*)realloc(buf,size+1);
-		buf[size]=0;
-	    file.read(buf,size);
+		if(allLines){
+	    	buf = (char*)realloc(buf,size+1);
+			buf[size]=0;
+		
+	    	file.read(buf,size);
+		} else {
+			std::string lastLine,tmp;            
+			while(!file.eof()){
+				getline(file,tmp);
+				if(tmp.size()>1){
+					lastLine=tmp;
+				} 
+			}
+			/*
+ 			file.seekg(0,file.end);
+			 bool keepLooping = true;
+        		while(keepLooping) {
+            		char ch;
+            		file.get(ch);                            // Get current byte's data
+
+            		if((int)file.tellg() <= 1) {             // If the data was at or before the 0th byte
+                		file.seekg(0);                       // The first line is the last line
+                		keepLooping = false;                // So stop there
+           			} else if(ch == '\n') {                   // If the data was a newline
+                		keepLooping = false;                // Stop at the current position.
+					} else {                                  // If the data was neither a newline nor at the 0 byte
+               		 file.seekg(-2,file.cur);        // Move to the front of that data, then to the front of the data before it
+            		}
+       			}
+
+        	
+        	getline(file,lastLine); 
+ 			buf = (char*)realloc(buf,lastLine.size()+1);
+			*/
+			buf = (char*)realloc(buf,lastLine.size()+1);
+			strncpy(buf,lastLine.c_str(),lastLine.size()+1);
+			buf[lastLine.size()]=0;
+			DPRINT("tail:'%s'",lastLine.c_str());
+
+		}
 	    last_hash= current_hash;
 	    current_hash =::common::misc::data::simpleHash(buf,size);
 	    
@@ -232,7 +273,8 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	return 0;
 }
 
-int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght){
+
+int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::string &key, uint32_t offset, uint32_t lenght){
 	if(*separator==0){
 		// no separator, treats as binary;
 		if(lenght>=size){
@@ -263,9 +305,12 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 			if(lenght==sizeof(float)){
 				sscanf(pnt,"%f",data_ptr);
 				DPRINT("parsed float:%f",*(float*)data_ptr);
+				data_results[key]=true;
+
 			} else {
 				sscanf(pnt,"%lf",data_ptr);
 				DPRINT("parsed double:%lf",*(double*)data_ptr);
+				data_results[key]=true;
 
 			}
 			return 0;
@@ -274,11 +319,14 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, uint32_t offset,
 				int64_t temp=strtoll(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int64_t :%lld [0x%llx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				data_results[key]=true;
 				return 0;
 			} else if(lenght == sizeof(int32_t)){
 				int32_t temp=strtol(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int32_t :%d [0xlx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				data_results[key]=true;
+
 				return 0;
 			}
 		}
