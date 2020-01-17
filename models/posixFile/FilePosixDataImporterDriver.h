@@ -45,6 +45,7 @@ public AbstractDataImportDriver {
 
 
 protected:
+    bool timeDependentName;
     /*!
      "server_url":["host:port",...]
      "data_key":memcached string key

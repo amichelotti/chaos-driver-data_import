@@ -110,6 +110,7 @@ FilePosixDataImporterDriver::FilePosixDataImporterDriver(){
 	size = 0;
 	buf=0;
 	last_hash=-1;
+    timeDependentName=false;
 
 }
 
@@ -134,6 +135,8 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
     
     //fetch value from json document
     const Json::Value& filename= json_parameter["file_name"];
+	const Json::Value& filename_time= json_parameter["file_time_name"];
+
     const Json::Value& sseparator = json_parameter["separator"];
     
     if(sseparator.isNull()){
@@ -147,10 +150,18 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
     
     //check madatory data
     if (filename.isNull()) {
-        throw chaos::CException(-2, "file name is mandatory", __PRETTY_FUNCTION__);
-    }
+		if(filename_time.isNull()){
+        	throw chaos::CException(-2, "file name is mandatory", __PRETTY_FUNCTION__);
+		} else {
+			fileName=filename_time.asString();
+			timeDependentName=true;
 
-    fileName=filename.asString();
+		}
+    } else {
+		fileName=filename.asString();
+	}
+
+    
     DPRINT("File name %s, separator :'%c'",fileName.c_str(),separator);
 
 
@@ -168,9 +179,25 @@ void FilePosixDataImporterDriver::driverDeinit() throw(chaos::CException) {
 
 int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len) {
 
-	std::ifstream file(fileName.c_str(),std::ios::in);
+	std::ifstream file;
+	if(timeDependentName){
+		time_t rawtime;
+  		struct tm * timeinfo;
+  		char buffer [512];
+		time (&rawtime);
+  		timeinfo = localtime (&rawtime);
+
+  		strftime (buffer,sizeof(buffer),fileName.c_str(),timeinfo);
+		file.open(buffer,std::ios::in);
+		FilePosixDataImporterDriverLDBG_ << "Reading '"<<buffer<<"'";	
+  
+	} else {
+		file.open(fileName.c_str(),std::ios::in);
+		FilePosixDataImporterDriverLDBG_ << "Reading '"<<fileName.c_str()<<"'";
+	}
+
 	pnt=NULL;
-	FilePosixDataImporterDriverLDBG_ << "Reading "<<fileName.c_str();
+	
 	if(file.is_open()){
 	  //got to end
 	  file.seekg(0,file.end);
