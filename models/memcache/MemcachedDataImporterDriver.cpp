@@ -268,7 +268,7 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
     }
      data_results[*it]=(err==0);
   }
-  return (key_read>0);
+  return 0;
 }
 int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
                                                 const std::string &key,
