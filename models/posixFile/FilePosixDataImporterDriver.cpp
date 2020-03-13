@@ -253,7 +253,7 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	    last_hash= current_hash;
 	    current_hash =::common::misc::data::simpleHash(buf,size);
 	    
-	    DPRINT("read tail %d bytes, hash 0x%x, last_hash 0x%x",size,current_hash,last_hash);
+	    DPRINT("read tail %d bytes, hash 0x%lx, last_hash 0x%lx",size,current_hash,last_hash);
 	    
 	  } else {
 	    ERR("file is empty %d",size);
@@ -263,7 +263,7 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	  file.close();
 	  if(current_hash==last_hash){
 	    // not changed
-	    DPRINT("not changed last hash 0x%x",last_hash);
+	    DPRINT("not changed last hash 0x%lx",last_hash);
 	    return DATA_IMPORT_NO_CHANGE;
 	  }
 	} else {
@@ -318,13 +318,13 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 			if(lenght==sizeof(int64_t)){
 				int64_t temp=strtoll(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
-				DPRINT("parsed int64_t :%lld [0x%llx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				DPRINT("parsed int64_t :%lld [0x%lx] base:%d",*(double*)data_ptr,temp,temp,offset);
 				data_results[key]=true;
 				return 0;
 			} else if(lenght == sizeof(int32_t)){
 				int32_t temp=strtol(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
-				DPRINT("parsed int32_t :%d [0xlx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				DPRINT("parsed int32_t :%f [0x%lx] base:%d",*(double*)data_ptr,temp,temp,offset);
 				data_results[key]=true;
 
 				return 0;
