@@ -303,12 +303,12 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 
 			// contain . is a double
 			if(lenght==sizeof(float)){
-				sscanf(pnt,"%f",data_ptr);
+				sscanf(pnt,"%f",(float*)data_ptr);
 				DPRINT("parsed float:%f",*(float*)data_ptr);
 				data_results[key]=true;
 
 			} else {
-				sscanf(pnt,"%lf",data_ptr);
+				sscanf(pnt,"%lf",(double*)data_ptr);
 				DPRINT("parsed double:%lf",*(double*)data_ptr);
 				data_results[key]=true;
 
@@ -318,13 +318,13 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 			if(lenght==sizeof(int64_t)){
 				int64_t temp=strtoll(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
-				DPRINT("parsed int64_t :%lld [0x%lx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				DPRINT("parsed int64_t : (double) %lf [0x%lx] base:%ld",*(double*)data_ptr,temp,temp,offset);
 				data_results[key]=true;
 				return 0;
 			} else if(lenght == sizeof(int32_t)){
 				int32_t temp=strtol(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
-				DPRINT("parsed int32_t :%f [0x%lx] base:%d",*(double*)data_ptr,temp,temp,offset);
+				DPRINT("parsed int32_t :%f [0x%x] base:%d",*(double*)data_ptr,temp,temp,offset);
 				data_results[key]=true;
 
 				return 0;
