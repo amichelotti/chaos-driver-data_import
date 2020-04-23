@@ -6,7 +6,10 @@ include_directories(../../ ${chaos_INCLUDE_DIRS})
 
 add_subdirectory(models)
 
-SET(data_import_src   core/DataImport.cpp
+SET(data_import_src
+   core/AttributeOffLen.cpp
+   core/DataImport.cpp
+  core/AbstractDataImportDriver.cpp
   core/AbstractDataImportDriver.cpp
   core/DataImportDriverInterface.cpp 
   core/RTDB.cpp core/DataImportHistory.cpp)

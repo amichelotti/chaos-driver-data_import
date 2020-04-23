@@ -22,7 +22,7 @@
 #include <driver/data-import/core/AbstractDataImportDriver.h>
 
 #include <chaos/common/utility/endianess.h>
-
+#include <driver/data-import/core/AttributeOffLen.h>
 #include <json/json.h>
 
 using namespace chaos;
@@ -144,7 +144,7 @@ void DataImportHistory::unitInit() throw(chaos::CException) {
 
     
     //check the value set on MDS for in_1 channel
-    for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();
+    for(::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
         it != attribute_off_len_vec.end();
         it++) {
         //get hte base address of the value form the cache
@@ -183,7 +183,7 @@ void DataImportHistory::unitRun() throw(chaos::CException) {
 
 
     //fetch all single attribute f)rom datablock
-    for(AttrbiuteOffLenVecIterator it = attribute_off_len_vec.begin();
+    for(::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
         it != attribute_off_len_vec.end();
         it++) {
         //
