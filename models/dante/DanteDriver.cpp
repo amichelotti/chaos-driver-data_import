@@ -99,7 +99,7 @@ void DanteDriver::driverInit(const char *initParameter) throw(
 }
 
 void DanteDriver::driverDeinit() throw(chaos::CException) {
-  for(driver::data_import::AttributeOffLenIterator i =attribute_off_len_vec.begin();i!=attribute_off_len_vec.end();i++){
+  for(::driver::data_import::AttributeOffLenIterator i =attribute_off_len_vec.begin();i!=attribute_off_len_vec.end();i++){
             delete(*i);
 
     }
@@ -144,12 +144,12 @@ if(par){
 
 int DanteDriver::getData(const std::string& key,void*ptr,int maxsize){
   int err=0;
-  std::map<const std::string,driver::data_import::AttributeOffLen *>::iterator k=key2item.find(key);
+  std::map<const std::string,::driver::data_import::AttributeOffLen *>::iterator k=key2item.find(key);
   if(k==key2item.end()){
     DanteDriverLERR_<< "Key "<<key<<" not found";
     return -1;
   }
-  driver::data_import::AttributeOffLen *it=k->second;
+  ::driver::data_import::AttributeOffLen *it=k->second;
   if((err = readDataOffset(it->buffer, it->keybind,it->offset, it->len))) {
       DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;
       return err;
