@@ -39,15 +39,14 @@
 // GET_PLUGIN_CLASS_DEFINITION
 // we need only to define the driver because we don't are makeing a plugin
 OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(DanteDriver, 1.0.0,
-                                       DanteDriver)
+                                       driver::data_import::DanteDriver)
 REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(
-    DanteDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(DanteDriver,
-                                               data_keys[array of strings])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(DanteDriver,
-                                               data_pack_len[uint32_t])
+    driver::data_import::DanteDriver, server_url [array of strings like host:port])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 using namespace chaos::common::data;
+namespace driver{
+
+namespace data_import{
 // GET_PLUGIN_CLASS_DEFINITION
 // we need to define the driver with alias version and a class that implement it
 DanteDriver::DanteDriver() {
@@ -208,4 +207,6 @@ int DanteDriver::getData(const std::string& key,void*ptr,int maxsize){
             break;
           }
         return err;
+}
+}
 }

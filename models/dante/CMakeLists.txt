@@ -9,7 +9,7 @@ ELSE()
   ADD_LIBRARY(${PROJECT_NAME} SHARED ${lib})
 ENDIF()
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} memcached pthread chaos_cutoolkit chaos_driver_data_import chaos_common boost_random common-crest ${FrameworkLib})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} memcached pthread chaos_cutoolkit chaos_driver_data_import chaos_common boost_random common-crest chaos_driver_data_import_memcache ${FrameworkLib})
 SET(DRIVERS_LIB ${DRIVERS_LIB} ${PROJECT_NAME} PARENT_SCOPE)
 FILE(GLOB files "*.h")
 INSTALL(FILES ${files} DESTINATION include/driver/data-import/models/dante)

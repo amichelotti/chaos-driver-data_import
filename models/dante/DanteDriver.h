@@ -38,6 +38,10 @@ DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(DanteDriver)
 
 #include <driver/data-import/core/AttributeOffLen.h>
 
+namespace driver{
+
+namespace data_import{
+
 class DanteDriver:public MemcachedDataImporterDriver {
     
     std::string danteRestServer,username,password;
@@ -78,4 +82,7 @@ public:
     DanteDriver();
     ~DanteDriver();
 };
+}
+}
+
 #endif /* defined(__DataImport__DanteDriver__) */
