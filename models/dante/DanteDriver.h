@@ -30,7 +30,6 @@
 
 #include <driver/data-import/models/memcache/MemcachedDataImporterDriver.h>
 
-DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(DanteDriver)
 /*
  driver definition
  */
@@ -41,6 +40,7 @@ DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(DanteDriver)
 namespace driver{
 
 namespace data_import{
+    static const char* PROT_ERROR="protocol_error";
 
 class DanteDriver:public MemcachedDataImporterDriver {
     
@@ -55,11 +55,10 @@ protected:
      "data_keys":memcached key array
      "data_pack_len":the lenght of the intere datapack to read
      */
-    void driverInit(const char *initParameter) throw(chaos::CException);
-    void driverDeinit() throw(chaos::CException);
-    int  fetchData(void *buffer, unsigned int buffer_len);
-    int readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght);
 public:
+ void driverInit(const char *initParameter) throw(chaos::CException);
+    void driverDeinit() throw(chaos::CException);
+   
     /**
      * @brief makes a rest post calling the function and giving the JSON parameters
      * 

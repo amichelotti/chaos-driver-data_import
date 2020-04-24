@@ -38,11 +38,6 @@
 
 // GET_PLUGIN_CLASS_DEFINITION
 // we need only to define the driver because we don't are makeing a plugin
-OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(DanteDriver, 1.0.0,
-                                       driver::data_import::DanteDriver)
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(
-    driver::data_import::DanteDriver, server_url [array of strings like host:port])
-CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 using namespace chaos::common::data;
 namespace driver{
 
@@ -131,7 +126,7 @@ if(par){
      std::stringstream ss;
      ss<<"invalid JSON response:"<<ansbuf;
      protocol_error.addStringValue("msg",ss.str());
-     retv->addCSDataValue("protocol_error",protocol_error);
+     retv->addCSDataValue(PROT_ERROR,protocol_error);
     DanteDriverLERR_<< "Invalid response"<<ansbuf;
 
    }
@@ -139,7 +134,7 @@ if(par){
     protocol_error.addStringValue("msg","SERVER ERROR");
     protocol_error.addInt32Value("err",ret);
 
-    retv->addCSDataValue("protocol_error",protocol_error);
+    retv->addCSDataValue(PROT_ERROR,protocol_error);
     DanteDriverLERR_<< "Server ERROR returned:"<<ret;
  }
 
