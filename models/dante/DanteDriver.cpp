@@ -80,7 +80,12 @@ void DanteDriver::driverInit(const char *initParameter) throw(
     throw chaos::CException(-2, "dante_server_url is mandatory", __PRETTY_FUNCTION__);
   }
   danteRestServer=json_server_urls.asString();
-
+const Json::Value &json_element = json_parameter["dante_element"];
+  // check madatory data
+  if (json_element.isNull()) {
+    throw chaos::CException(-2, "dante_element is mandatory", __PRETTY_FUNCTION__);
+  }
+  danteElement=json_element.asString();
   const Json::Value &rest_user = json_parameter["dante_user"];
   if(!rest_user.isNull()){
     username=rest_user.asString();
@@ -113,21 +118,23 @@ char ansbuf[16834];
 chaos::common::data::CDWUniquePtr retv=CDWUniquePtr(new CDataWrapper());
 int ret;
 chaos::common::data::CDataWrapper protocol_error;
+std::stringstream full;
+full<<"/element/"<<danteElement<<"/"<<func;
 
 if(par){
   json_par=par->getCompliantJSONString();
 }
- ret=::http_post(crest_handle, func.c_str(), json_par.c_str(), json_par.size(), ansbuf, sizeof(ansbuf));
+ ret=::http_post(crest_handle, full.str().c_str(), json_par.c_str(), json_par.size(), ansbuf, sizeof(ansbuf));
  if(ret==0){
    try{
      retv->setSerializedJsonData(ansbuf);
-     DanteDriverLDBG_<<"Server Returned:"<<ansbuf;
+     DanteDriverLDBG_<<"req:\""<<full.str()<<"\" Server Returned:"<<ansbuf;
    } catch(...){
      std::stringstream ss;
-     ss<<"invalid JSON response:"<<ansbuf;
+     ss<<"req:\""<<full.str()<<"\""<<" invalid JSON response:"<<ansbuf;
      protocol_error.addStringValue("msg",ss.str());
      retv->addCSDataValue(PROT_ERROR,protocol_error);
-    DanteDriverLERR_<< "Invalid response"<<ansbuf;
+    DanteDriverLERR_<< "Invalid response"<<retv->getCompliantJSONString();
 
    }
  } else {
@@ -135,7 +142,7 @@ if(par){
     protocol_error.addInt32Value("err",ret);
 
     retv->addCSDataValue(PROT_ERROR,protocol_error);
-    DanteDriverLERR_<< "Server ERROR returned:"<<ret;
+    DanteDriverLERR_<<"req:\""<<full.str()<<"\""<< " Server ERROR returned:"<<ret;
  }
 
   return retv;

@@ -1,7 +1,7 @@
 #include "AttributeOffLen.h"
 #include <json/json.h>
 #include <chaos/common/global.h> 
-static const char * const ERROR_MSG_BAD_JSON_PARAMETER = "Error reading json parameter";
+static const char * const ERROR_MSG_BAD_JSON_PARAMETER = "Error parsing JSON";
 static const char * const ERROR_MSG_BAD_JSON_DATASET_ATTRIBUTE = "The attribute description within the dataset attribute need to be an object";
 static const char * const ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_NAME = "The attribute name is mandatory";
 static const char * const ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_NAME = "The attribute name need to be a string";
@@ -45,7 +45,7 @@ namespace driver{
         attribute_type = DataType::TYPE_STRING;
     } else if(str_type.compare("binary")==0) {
         attribute_type = DataType::TYPE_BYTEARRAY;
-    } else if(str_type.compare("boolean")==0 ) {
+    } else if((str_type.compare("boolean")==0)||(str_type.compare("bool")==0) ) {
         attribute_type = DataType::TYPE_BOOLEAN;
     } else {
         err = -1;
@@ -60,15 +60,21 @@ AttributeOffLenVec json2Attribute(const std::string&jsonin){
     Json::Value						json_parameter;
     AttributeOffLenVec attribute_off_len_vec;
     int idx=0;
+    std::string defkeybind="";
     if(!json_reader.parse(jsonin, json_parameter)) {
-        DILERR_<<" RECEIVED:"<<jsonin;
-        LOG_AND_THROW(-1, ERROR_MSG_BAD_JSON_PARAMETER)
+        std::stringstream ss;
+        ss<<ERROR_MSG_BAD_JSON_PARAMETER<<": \""<<jsonin<<"\"";
+        LOG_AND_THROW(-1, ss.str());
     }
 
     const Json::Value& dataset_description = json_parameter["dataset"];
     if(dataset_description.isNull()){
         LOG_AND_THROW(-1, "a 'dataset' key must be provided")
+    }
 
+    const Json::Value& def_keybind = json_parameter["keybind"];
+    if(!def_keybind.isNull()&&(def_keybind.isString())){
+        defkeybind=def_keybind.asString();
     }
 
     for (Json::ValueConstIterator it = dataset_description.begin();
@@ -156,9 +162,9 @@ AttributeOffLenVec json2Attribute(const std::string&jsonin){
         } else {
             vec->factor=json_attribute_factor.asDouble();
         }
-        if(key_bind.isNull() || !key_bind.isString()){
-            vec->keybind="";
-        } else {
+        vec->keybind=defkeybind;
+
+        if(!key_bind.isNull() && key_bind.isString()){
             vec->keybind=key_bind.asString();
         }
 

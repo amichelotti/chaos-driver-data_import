@@ -198,7 +198,7 @@ void DataImport::unitRun() throw(chaos::CException) {
         it++) {
         //
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
-            DILERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
+            DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" driver with error " << err;
             setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
             metadataLogging(chaos::common::metadata_logging::StandardLoggingChannel::LogLevelError, boost::str(boost::format("Error fetching key '%1%") %  (*it)->name ));
 

@@ -43,6 +43,8 @@ public AbstractDataImportDriver {
     std::map<std::string,uint32_t> key2off;
     
 protected:
+
+
     /*!
      "server_url":["host:port",...]
      "data_keys":memcached key array
