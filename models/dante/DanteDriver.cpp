@@ -127,11 +127,13 @@ if(par){
  ret=::http_post(crest_handle, full.str().c_str(), json_par.c_str(), json_par.size(), ansbuf, sizeof(ansbuf));
  if(ret==0){
    try{
+     DanteDriverLDBG_<<"Req:\""<<full.str();
      retv->setSerializedJsonData(ansbuf);
-     DanteDriverLDBG_<<"req:\""<<full.str()<<"\" Server Returned:"<<ansbuf;
+     DanteDriverLDBG_<<"\" Server Returned:"<<ansbuf;
    } catch(...){
      std::stringstream ss;
-     ss<<"req:\""<<full.str()<<"\""<<" invalid JSON response:"<<ansbuf;
+     ss<<"REQ:\""<<full.str()<<"\""<<" invalid JSON response:"<<ansbuf;
+     DanteDriverLERR_<< ss.str();
      protocol_error.addStringValue("msg",ss.str());
      retv->addCSDataValue(PROT_ERROR,protocol_error);
     DanteDriverLERR_<< "Invalid response"<<retv->getCompliantJSONString();
