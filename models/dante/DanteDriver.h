@@ -49,7 +49,9 @@ class DanteDriver:public MemcachedDataImporterDriver {
     chaos_crest_handle_t crest_handle;
     //chaos::common::data::CDWUniquePtr dataset;
     ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
-    std::map<const std::string,::driver::data_import::AttributeOffLen *> key2item;
+    ::driver::data_import::AttributeOffLenVec static_attribute_off_len_vec;
+
+    std::map<const std::string,::driver::data_import::AttributeOffLen *> key2item[2];
 protected:
     /*!
      "server_url":["host:port",...]
@@ -57,6 +59,10 @@ protected:
      "data_pack_len":the lenght of the intere datapack to read
      */
 public:
+    enum DSTYPE {
+        DYNAMIC,
+        STATIC
+    };
  void driverInit(const char *initParameter) throw(chaos::CException);
     void driverDeinit() throw(chaos::CException);
    
@@ -74,10 +80,11 @@ public:
      * 
      * @param key dataset key
      * @param ptr buffer
+     * @param typ choose if dynamic or static dataset
      * @param maxsize maxbug size, if zero use the default for the requested data
      * @return int 0 on success
      */
-    int getData(const std::string& key,void*ptr,int maxsize=0);
+    int getData(const std::string& key,void*ptr,DSTYPE typ=DYNAMIC,int maxsize=0);
 
     DanteDriver();
     ~DanteDriver();

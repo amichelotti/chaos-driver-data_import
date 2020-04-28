@@ -229,7 +229,7 @@ void MemcachedDataImporterDriver::driverDeinit() throw(chaos::CException) {
 }
 
 int MemcachedDataImporterDriver::fetchData(void *buffer,
-                                           unsigned int buffer_len) {
+                                           unsigned int buffer_len,const std::string key) {
   CHAOS_ASSERT(mc_client)
   int err = 0;
   int key_read=0;
@@ -237,17 +237,22 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
   memcached_return_t rc;
   size_t value_length = 0;
   int tot_size = 0;
+  
   for (std::vector<std::string>::iterator it = data_keys.begin();
        it != data_keys.end(); it++) {
     // get the value form memcached
+    if(key!="" && key!=(*it)){
+      continue;
+    }
+
     char *value = memcached_get(mc_client, (*it).c_str(), (*it).length(),
                                 &value_length, &flags, &rc);
     // check if we have something
     if (value != NULL) {
       if (value_length > buffer_len) {
         err = -1;
-        MemcachedDataImporterDriverLERR_ << "The found value for key " << *it
-                                         << " doesn't fit into the buffer";
+        MemcachedDataImporterDriverLERR_ << "The size "<<value_length<<" of key " << *it
+                                         << " doesn't fit into buffer size:"<<buffer_len;
       } else {
         char *pnt = ((char *)buffer) + tot_size;
         key2off[*it] = tot_size;

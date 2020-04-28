@@ -71,7 +71,22 @@ void DanteDriver::driverInit(const char *initParameter) throw(
     throw chaos::CException(-1, "Json init paremeter has not been parsed",
                             __PRETTY_FUNCTION__);
   }
-  attribute_off_len_vec=::driver::data_import::json2Attribute(initParameter);
+  const Json::Value &json_dyn = json_parameter["dyn_ds"];
+  if(json_dyn.isNull()){
+    DanteDriverLERR_<< " Dynamic dataset is not set 'dyn_ds'";
+    
+  } else {
+   attribute_off_len_vec=::driver::data_import::json2Attribute(json_dyn);
+
+  }
+  const Json::Value &json_sta = json_parameter["sta_ds"];
+  if(json_sta.isNull()){
+    DanteDriverLERR_<< " Static dataset is not set 'sta_ds'";
+    
+  } else {
+   static_attribute_off_len_vec=::driver::data_import::json2Attribute(json_sta);
+
+  }
   
   // fetch value from json document
   const Json::Value &json_server_urls = json_parameter["dante_server_url"];
@@ -97,7 +112,19 @@ const Json::Value &json_element = json_parameter["dante_element"];
   }
     for(::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
         it != attribute_off_len_vec.end();it++) {
-        key2item[(*it)->name]=*it;
+        key2item[0][(*it)->name]=*it;
+        if((*it)->buffer==NULL){
+          (*it)->buffer=malloc((*it)->len);
+        }
+
+    }
+
+    for(::driver::data_import::AttributeOffLenIterator it = static_attribute_off_len_vec.begin();
+        it != static_attribute_off_len_vec.end();it++) {
+        key2item[1][(*it)->name]=*it;
+        if((*it)->buffer==NULL){
+          (*it)->buffer=malloc((*it)->len);
+        }
         
     }
   crest_handle=chaos_crest_open(danteRestServer.c_str());
@@ -105,6 +132,8 @@ const Json::Value &json_element = json_parameter["dante_element"];
 
 void DanteDriver::driverDeinit() throw(chaos::CException) {
   for(::driver::data_import::AttributeOffLenIterator i =attribute_off_len_vec.begin();i!=attribute_off_len_vec.end();i++){
+            free((*i)->buffer);
+            free((*i)->old_buffer);
             delete(*i);
 
     }
@@ -113,8 +142,9 @@ void DanteDriver::driverDeinit() throw(chaos::CException) {
 }
 
 chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string&func,const chaos::common::data::CDataWrapper* par){
-std::string json_par;
-char ansbuf[16834];
+std::string json_par="{}";
+char ansbuf[1024];
+memset(ansbuf,0,sizeof(ansbuf));
 chaos::common::data::CDWUniquePtr retv=CDWUniquePtr(new CDataWrapper());
 int ret;
 chaos::common::data::CDataWrapper protocol_error;
@@ -124,17 +154,17 @@ full<<"/element/"<<danteElement<<"/"<<func;
 if(par){
   json_par=par->getCompliantJSONString();
 }
- ret=::http_post(crest_handle, full.str().c_str(), json_par.c_str(), json_par.size(), ansbuf, sizeof(ansbuf));
+ ret=::http_post(crest_handle, full.str().c_str(), json_par.c_str(), json_par.size()+1, ansbuf, sizeof(ansbuf));
  if(ret==0){
    try{
-     DanteDriverLDBG_<<"Req:\""<<full.str();
+     DanteDriverLDBG_<<"Req:\""<<full.str()<< " data:"<<json_par<<" answer:"<<ansbuf;
      retv->setSerializedJsonData(ansbuf);
      DanteDriverLDBG_<<"\" Server Returned:"<<ansbuf;
    } catch(...){
      std::stringstream ss;
-     ss<<"REQ:\""<<full.str()<<"\""<<" invalid JSON response:"<<ansbuf;
+     ss<<"REQ:\""<<full.str()<<"\" ret:"<<ret<<" invalid JSON response:"<<ansbuf;
      DanteDriverLERR_<< ss.str();
-     protocol_error.addStringValue("msg",ss.str());
+     protocol_error.addStringValue("msg","invalid JSON response");
      retv->addCSDataValue(PROT_ERROR,protocol_error);
     DanteDriverLERR_<< "Invalid response"<<retv->getCompliantJSONString();
 
@@ -144,21 +174,30 @@ if(par){
     protocol_error.addInt32Value("err",ret);
 
     retv->addCSDataValue(PROT_ERROR,protocol_error);
-    DanteDriverLERR_<<"req:\""<<full.str()<<"\""<< " Server ERROR returned:"<<ret;
+    DanteDriverLERR_<<"req:\""<<full.str()<<"\""<< " Server ERROR returned:"<<ret<<" buf:"<<ansbuf;
  }
 
   return retv;
 }
 
 
-int DanteDriver::getData(const std::string& key,void*ptr,int maxsize){
+int DanteDriver::getData(const std::string& key,void*ptr,DSTYPE typ,int maxsize){
   int err=0;
-  std::map<const std::string,::driver::data_import::AttributeOffLen *>::iterator k=key2item.find(key);
-  if(k==key2item.end()){
+  int indx=(typ==DYNAMIC)?0:1;
+  std::map<const std::string,::driver::data_import::AttributeOffLen *>::iterator k=key2item[indx].find(key);
+  if(k==key2item[indx].end()){
     DanteDriverLERR_<< "Key "<<key<<" not found";
     return -1;
   }
   ::driver::data_import::AttributeOffLen *it=k->second;
+
+  if((err=fetch(it->keybind))!=0){
+     DanteDriverLERR_<< "ERROR fetching:"<<it->keybind;
+    return err;
+  }
+
+  
+  
   if((err = readDataOffset(it->buffer, it->keybind,it->offset, it->len))) {
       DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;
       return err;

@@ -1,5 +1,4 @@
 #include "AttributeOffLen.h"
-#include <json/json.h>
 #include <chaos/common/global.h> 
 static const char * const ERROR_MSG_BAD_JSON_PARAMETER = "Error parsing JSON";
 static const char * const ERROR_MSG_BAD_JSON_DATASET_ATTRIBUTE = "The attribute description within the dataset attribute need to be an object";
@@ -56,17 +55,20 @@ namespace driver{
 
 AttributeOffLenVec json2Attribute(const std::string&jsonin){
     Json::Reader					json_reader;
-
     Json::Value						json_parameter;
-    AttributeOffLenVec attribute_off_len_vec;
-    int idx=0;
-    std::string defkeybind="";
-    if(!json_reader.parse(jsonin, json_parameter)) {
+
+     if(!json_reader.parse(jsonin, json_parameter)) {
         std::stringstream ss;
         ss<<ERROR_MSG_BAD_JSON_PARAMETER<<": \""<<jsonin<<"\"";
         LOG_AND_THROW(-1, ss.str());
     }
-
+    return json2Attribute(json_parameter);
+}
+AttributeOffLenVec json2Attribute(const Json::Value& json_parameter){
+    AttributeOffLenVec attribute_off_len_vec;
+    int idx=0;
+    std::string defkeybind="";
+   
     const Json::Value& dataset_description = json_parameter["dataset"];
     if(dataset_description.isNull()){
         LOG_AND_THROW(-1, "a 'dataset' key must be provided")
