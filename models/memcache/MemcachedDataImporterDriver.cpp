@@ -285,7 +285,7 @@ int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
     return -1;
   // copy seletected portion of data
   if (key == "") {
-    std::memcpy(data_ptr, (buffer_data_block + key2off[key] + offset), lenght);
+    std::memcpy(data_ptr, (buffer_data_block + offset), lenght);
   } else {
     std::memcpy(data_ptr, (buffer_data_block + key2off[key] + offset), lenght);
   }

@@ -2,6 +2,7 @@
 #define __ATTRIBUTE_OFF_LEN_H__
 #include <vector>
 #include <chaos/common/chaos_constants.h>
+#include <chaos/common/data/CDataWrapper.h>
 #include <json/json.h>
 
 namespace driver
@@ -27,12 +28,14 @@ struct AttributeOffLen
 
 typedef std::vector<AttributeOffLen *> AttributeOffLenVec;
 typedef std::vector<AttributeOffLen *>::iterator AttributeOffLenIterator;
+typedef std::vector<AttributeOffLen *>::const_iterator AttributeOffLenCIterator;
 
 // must contain a dataset key
 AttributeOffLenVec json2Attribute(const Json::Value&);
 
+int copy(void*ptr,const AttributeOffLen*v);
 AttributeOffLenVec json2Attribute(const std::string &jsonin);
-
+chaos::common::data::CDWUniquePtr attribute2CDW(const AttributeOffLenVec& attrs );
 int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute_type);
 
 } // namespace data_import

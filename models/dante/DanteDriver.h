@@ -53,6 +53,7 @@ class DanteDriver:public MemcachedDataImporterDriver {
 
     std::map<const std::string,::driver::data_import::AttributeOffLen *> key2item[2];
 protected:
+    void updateProperties();
     /*!
      "server_url":["host:port",...]
      "data_keys":memcached key array
@@ -85,6 +86,10 @@ public:
      * @return int 0 on success
      */
     int getData(const std::string& key,void*ptr,DSTYPE typ=DYNAMIC,int maxsize=0);
+ 
+    chaos::common::data::CDWUniquePtr getDrvProperties();
+                  
+    int setDrvProperty(const std::string& key, const std::string& value);
 
     DanteDriver();
     ~DanteDriver();
