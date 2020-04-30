@@ -283,58 +283,7 @@ int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxs
     return -200;
   }
   copy(ptr,it);
-  /*switch (it->type){
-  case chaos::DataType::TYPE_INT32:
-    if (it->lbe)
-    {
-      *((int32_t *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                            chaos::common::utility::big_endian, int32_t>(*((int32_t *)it->buffer));
-    }
-    else
-    {
-      *((int32_t *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                            chaos::common::utility::little_endian, int32_t>(*((int32_t *)it->buffer));
-    }
-
-    DanteDriverLDBG_ << " reading INT32 attribute idx:" << it->index << " name:" << it->name << "[" << it->keybind << "] off:" << it->offset << " len:" << it->len << " LBE:" << it->lbe << " VALUE:" << *((int32_t *)ptr);
-
-    break;
-  case chaos::DataType::TYPE_INT64:
-    if (it->lbe)
-    {
-      *((int64_t *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                            chaos::common::utility::big_endian, int64_t>(*((int64_t *)it->buffer));
-    }
-    else
-    {
-      *((int64_t *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                            chaos::common::utility::little_endian, int64_t>(*((int64_t *)it->buffer));
-    }
-    DanteDriverLDBG_ << " reading INT64 attribute idx:" << it->index << " name:" << it->name << "[" << it->keybind << "] off:" << it->offset << " len:" << it->len << " LBE:" << it->lbe << " VALUE:" << *((int64_t *)ptr);
-    break;
-
-  case chaos::DataType::TYPE_DOUBLE:
-    if (it->lbe)
-    {
-      *((double *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                           chaos::common::utility::big_endian, double>(*((double *)it->buffer));
-    }
-    else
-    {
-      *((double *)ptr) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                                                           chaos::common::utility::little_endian, double>(*((double *)it->buffer));
-    }
-
-    DanteDriverLDBG_ << " reading DOUBLE attribute idx:" << it->index << " name:" << it->name << "[" << it->keybind << "] off:" << it->offset << " len:" << it->len << " LBE:" << it->lbe << " VALUE:" << *((double *)ptr);
-
-    break;
-
-  default:
-    memcpy(ptr, it->buffer, it->len);
-    DanteDriverLDBG_ << " reading  attribute idx:" << it->index << " name:" << it->name << "[" << it->keybind << "] off:" << it->offset << " len:" << it->len << " LBE:" << it->lbe << " TYPE:" << it->type;
-
-    break;
-  }*/
+  
   return err;
 }
 } // namespace data_import
