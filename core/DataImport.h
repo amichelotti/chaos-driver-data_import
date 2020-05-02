@@ -24,27 +24,13 @@
 #include <chaos/cu_toolkit/control_manager/RTAbstractControlUnit.h>
 #include <driver/data-import/core/DataImportDriverInterface.h>
 
-struct AttributeOffLen {
-    uint32_t                    index;
-    std::string                 name;
-    std::string                 keybind;
-    chaos::DataType::DataType   type;
-    uint32_t                    offset;
-    uint32_t                    len;
-    double                      factor; //conversion factor if any
-    int                         lbe;//-1 no lbe, 0-little, 1-big
-    void                        *buffer;
-    void                        *old_buffer;
-};
-
-typedef std::vector<AttributeOffLen*>               AttrbiuteOffLenVec;
-typedef std::vector<AttributeOffLen*>::iterator     AttrbiuteOffLenVecIterator;
+#include "AttributeOffLen.h"
 
 class DataImport:
 public chaos::cu::control_manager::RTAbstractControlUnit {
     PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImport)
 protected:
-    std::vector<AttributeOffLen*> attribute_off_len_vec;
+    ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
     
     DataImportDriverInterface *driver_interface;
 public:
@@ -59,8 +45,6 @@ public:
      */
     ~DataImport();
     
-    int decodeType(const std::string& str_type,
-                   chaos::DataType::DataType& attribute_type);
     
 protected:
     /*!
