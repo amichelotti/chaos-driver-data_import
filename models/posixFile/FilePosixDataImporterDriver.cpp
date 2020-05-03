@@ -181,7 +181,7 @@ void FilePosixDataImporterDriver::driverDeinit() throw(chaos::CException) {
 
 }
 
-int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len) {
+int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len,const std::string key) {
 
 	std::ifstream file;
 	if(timeDependentName){

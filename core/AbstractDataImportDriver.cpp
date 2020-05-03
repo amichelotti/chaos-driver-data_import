@@ -63,6 +63,10 @@ bool AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
     return buffer_data_block != NULL;
 }
 
+int AbstractDataImportDriver::fetch(const std::string key){
+ return fetchData(buffer_data_block,buffer_len,key);
+}
+
 //read data from offset
 int AbstractDataImportDriver::readDataOffset(void* data_ptr,
                                              uint32_t offset,
@@ -84,8 +88,7 @@ MsgManagmentResultType::MsgManagmentResult AbstractDataImportDriver::execOpcode(
     MsgManagmentResultType::MsgManagmentResult result = MsgManagmentResultType::MMR_EXECUTED;
     switch(cmd->opcode) {
         case DataImportDriverOpcode_FETCH_NEW_DATABLOCK:
-            if((cmd->ret = fetchData(buffer_data_block,
-                                     buffer_len))) {
+            if((cmd->ret = fetch())) {
 	      //ADIDLERR_<<"Error during the new datablock fetch command with code:" << cmd->ret;
 	      //result = MsgManagmentResultType::MMR_ERROR;
             } else {
