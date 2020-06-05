@@ -166,7 +166,7 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
 	}
 
     
-    DPRINT("File name %s, separator :'%c'",fileName.c_str(),separator);
+    DPRINT("File name %s, separator :'%s'",fileName.c_str(),separator);
 
 
 }

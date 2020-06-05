@@ -126,7 +126,7 @@ void DanteDriver::driverInit(const char *initParameter) throw(
     key2item[0][(*it)->name] = *it;
     if ((*it)->buffer == NULL)
     {
-      (*it)->buffer = calloc(1,(*it)->len +((*it)->type==chaos::DataType::TYPE_STRING)?1:0);
+      (*it)->buffer = calloc(1,(*it)->len +(((*it)->type==chaos::DataType::TYPE_STRING)?1:0));
     }
   }
 
@@ -136,7 +136,7 @@ void DanteDriver::driverInit(const char *initParameter) throw(
     key2item[1][(*it)->name] = *it;
     if ((*it)->buffer == NULL)
     {
-      (*it)->buffer = calloc(1,(*it)->len+((*it)->type==chaos::DataType::TYPE_STRING)?1:0);
+      (*it)->buffer = calloc(1,(*it)->len+(((*it)->type==chaos::DataType::TYPE_STRING)?1:0));
     }
   }
   crest_handle = chaos_crest_open(danteRestServer.c_str());
