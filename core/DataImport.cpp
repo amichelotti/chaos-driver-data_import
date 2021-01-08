@@ -273,12 +273,3 @@ void DataImport::unitStop() throw(chaos::CException) {
 void DataImport::unitDeinit() throw(chaos::CException) {
     if(driver_interface) delete(driver_interface);
 }
-
-//! pre imput attribute change
-void DataImport::unitInputAttributePreChangeHandler() throw(chaos::CException) {
-    
-}
-
-//! attribute changed handler
-void DataImport::unitInputAttributeChangedHandler() throw(chaos::CException) {
-}
