@@ -75,10 +75,10 @@ int DataImportDriverInterface::fetchNewDatablock() {
 }
 
 int DataImportDriverInterface::readAttribute(void *attribute_ptr, int from, int len) {
-    return impl->readAttribute(attribute_ptr,from, len);
+    return impl->readDataOffset(attribute_ptr,from, len);
 }
 int DataImportDriverInterface::readAttribute(void *attribute_ptr, const std::string& key,int from, int len){
-   return impl->readAttribute(attribute_ptr,key,from, len);
-}
+   return impl->readDataOffset(attribute_ptr,key,from, len);
+
 }
 #endif
