@@ -66,6 +66,12 @@ bool AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
 int AbstractDataImportDriver::fetch(const std::string key){
  return fetchData(buffer_data_block,buffer_len,key);
 }
+int AbstractDataImportDriver::fetchData(void *buffer, unsigned int buffer_len,const std::string key){
+        ADIDLERR_ << "Not implemented";
+
+    return 0;
+
+}
 
 //read data from offset
 int AbstractDataImportDriver::readDataOffset(void* data_ptr,

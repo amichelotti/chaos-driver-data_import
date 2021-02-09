@@ -27,12 +27,14 @@
 DataImportDriverInterface::DataImportDriverInterface(chaos::cu::driver_manager::driver::DriverAccessor*_accessor):
 accessor(_accessor){
     assert (_accessor);
+    impl=(AbstractDataImportDriver*)_accessor->getImpl();
 };
 
 DataImportDriverInterface::~DataImportDriverInterface(){
     
 }
 
+#if 0
 int DataImportDriverInterface::fetchNewDatablock() {
     int ret,ret2;
     message.opcode = DataImportDriverOpcode_FETCH_NEW_DATABLOCK;
@@ -67,3 +69,16 @@ int DataImportDriverInterface::readAttribute(void *attribute_ptr, const std::str
     ret=message.ret;
     return ret;
 }
+#else
+int DataImportDriverInterface::fetchNewDatablock() {
+    return impl->fetch();
+}
+
+int DataImportDriverInterface::readAttribute(void *attribute_ptr, int from, int len) {
+    return impl->readDataOffset(attribute_ptr,from, len);
+}
+int DataImportDriverInterface::readAttribute(void *attribute_ptr, const std::string& key,int from, int len){
+   return impl->readDataOffset(attribute_ptr,key,from, len);
+
+}
+#endif

@@ -23,16 +23,19 @@
 
 #include <chaos/cu_toolkit/driver_manager/driver/DriverTypes.h>
 #include <chaos/cu_toolkit/driver_manager/driver/DriverAccessor.h>
+#include "AbstractDataImportDriver.h"
 
 /*!
  Class that simplify the method call of the driver hiding the message system
  */
-class DataImportDriverInterface {
+class DataImportDriverInterface: public AbstractDataImportDriver {
     
 protected:
     chaos::cu::driver_manager::driver::DrvMsg message;
     
     chaos::cu::driver_manager::driver::DriverAccessor* accessor;
+    AbstractDataImportDriver*impl;
+
 public:
     
     DataImportDriverInterface(chaos::cu::driver_manager::driver::DriverAccessor*_accessor);
