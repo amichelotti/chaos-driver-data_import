@@ -52,6 +52,9 @@ class DanteDriver:public MemcachedDataImporterDriver {
     ::driver::data_import::AttributeOffLenVec static_attribute_off_len_vec;
 
     std::map<const std::string,::driver::data_import::AttributeOffLen *> key2item[2];
+    std::map<const std::string,uint64_t> last_fetch;
+    uint32_t maxUpdateRefresh;
+
 protected:
     void updateProperties();
     /*!
@@ -86,10 +89,11 @@ public:
      * @return int 0 on success
      */
     int getData(const std::string& key,void*ptr,DSTYPE typ=DYNAMIC,int maxsize=0);
- 
     chaos::common::data::CDWUniquePtr getDrvProperties();
-                  
+    chaos::common::data::CDWUniquePtr getDataset(DSTYPE typ=DYNAMIC);
+              
     int setDrvProperty(const std::string& key, const std::string& value);
+    void setMaxUpdateRefresh(const uint32_t ms_value){maxUpdateRefresh=ms_value;}
 
     DanteDriver();
     ~DanteDriver();
