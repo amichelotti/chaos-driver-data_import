@@ -31,11 +31,11 @@
 
 #include <json/json.h>
 
+#include <chaos/common/utility/TimingUtil.h>
 #include <chaos/common/utility/endianess.h>
 #include <common/crest/chaos_crest.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <chaos/common/utility/TimingUtil.h>
 
 // GET_PLUGIN_CLASS_DEFINITION
 // we need only to define the driver because we don't are makeing a plugin
@@ -223,16 +223,16 @@ chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func,
   return retv;
 }
 
-chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ){
-  chaos::common::data::CDWUniquePtr res(new CDataWrapper());
-  std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k ;
-  int indx=(typ == DYNAMIC) ? 0 : 1;
-  int err;
-  for(k=key2item[indx].begin();k!=key2item[indx].end();k++){
-  if ((err=readDataOffset(k->second->buffer, k->second->keybind, k->second->offset, k->second->len))) {
-    DanteDriverLERR_ << "Error reading attribute " << k->first << "["<<k->second->keybind<<"] from driver with error " << err;
-  } else {
-  /*  TYPE_BOOLEAN = 0,
+chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
+  chaos::common::data::CDWUniquePtr                                               res(new CDataWrapper());
+  std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k;
+  int                                                                             indx = (typ == DYNAMIC) ? 0 : 1;
+  int                                                                             err;
+  for (k = key2item[indx].begin(); k != key2item[indx].end(); k++) {
+    if ((err = readDataOffset(k->second->buffer, k->second->keybind, k->second->offset, k->second->len))) {
+      DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
+    } else {
+      /*  TYPE_BOOLEAN = 0,
             //!Integer 32 bit length
             TYPE_INT32,
             //!Integer 64 bit length
@@ -248,27 +248,31 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ){
             //!modifier to be ored to normal data types
             TYPE_ACCESS_ARRAY=0x100,
             */
-      if(k->second->type&chaos::DataType::TYPE_ACCESS_ARRAY){
-        k->second->type=(chaos::DataType::DataType)((int)k->second->type&(int)~chaos::DataType::TYPE_ACCESS_ARRAY);
-        res->appendArray(k->first,k->second->type,(const char*)k->second->buffer,k->second->len); 
-      } else if(k->second->type==chaos::DataType::TYPE_BOOLEAN){  
-        res->addBoolValue(k->first,*(bool*)k->second->buffer);
-      } else if(k->second->type==chaos::DataType::TYPE_INT32){  
-        res->addInt32Value(k->first,*(int32_t*)k->second->buffer);
-      } else if(k->second->type==chaos::DataType::TYPE_DOUBLE){  
-        res->addDoubleValue(k->first,*(double*)k->second->buffer);
-      } else if(k->second->type==chaos::DataType::TYPE_INT64){  
-        res->addInt64Value(k->first,*(int64_t*)k->second->buffer);
-      } else if(k->second->type==chaos::DataType::TYPE_STRING){  
-        std::string a((const char*)k->second->buffer);
-        res->addStringValue(k->first,a);
-      } else if(k->second->type==chaos::DataType::TYPE_BYTEARRAY){  
-        res->addBinaryValue(k->first,(const char*)k->second->buffer,k->second->len);
+      uint32_t tt = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+      if (tt) {
+        tt              = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+        k->second->type = (chaos::DataType::DataType)(tt);
+
+        res->appendArray(k->first, k->second->type, (const char *)k->second->buffer, k->second->len);
+       // DanteDriverLDBG_ << " VECTOR :" << k->first<<res->getJSONString();
+
+      } else if (k->second->type == chaos::DataType::TYPE_BOOLEAN) {
+        res->addBoolValue(k->first, *(bool *)k->second->buffer);
+      } else if (k->second->type == chaos::DataType::TYPE_INT32) {
+        res->addInt32Value(k->first, *(int32_t *)k->second->buffer);
+      } else if (k->second->type == chaos::DataType::TYPE_DOUBLE) {
+        res->addDoubleValue(k->first, *(double *)k->second->buffer);
+      } else if (k->second->type == chaos::DataType::TYPE_INT64) {
+        res->addInt64Value(k->first, *(int64_t *)k->second->buffer);
+      } else if (k->second->type == chaos::DataType::TYPE_STRING) {
+        std::string a((const char *)k->second->buffer);
+        res->addStringValue(k->first, a);
+      } else if (k->second->type == chaos::DataType::TYPE_BYTEARRAY) {
+        res->addBinaryValue(k->first, (const char *)k->second->buffer, k->second->len);
       }
-  }
+    }
   }
   return res;
-  
 }
 
 int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxsize) {
@@ -281,15 +285,14 @@ int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxs
   }
   ::driver::data_import::AttributeOffLen *  it  = k->second;
   std::map<std::string, uint64_t>::iterator i   = last_fetch.find(it->keybind);
-  uint64_t now = chaos::common::utility::TimingUtil::getTimeStamp();
+  uint64_t                                  now = chaos::common::utility::TimingUtil::getTimeStamp();
   if ((i == last_fetch.end()) || ((now - i->second) > maxUpdateRefresh)) {
-    DanteDriverLDBG_<<"Fetching:"<<it->keybind<<" for:"<<key;
+    DanteDriverLDBG_ << "Fetching:" << it->keybind << " for:" << key;
     if ((err = fetch(it->keybind)) != 0) {
       DanteDriverLERR_ << "ERROR fetching:" << it->keybind;
       return err;
     }
-      last_fetch[it->keybind]=now;
-
+    last_fetch[it->keybind] = now;
   }
   if ((err = readDataOffset(it->buffer, it->keybind, it->offset, it->len))) {
     DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;

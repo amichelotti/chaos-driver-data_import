@@ -80,7 +80,8 @@ int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute
     }
     if (str_type.find("[]") != std::string::npos)
     {
-        attribute_type = (chaos::DataType::DataType)((unsigned)attribute_type | (unsigned)DataType::TYPE_ACCESS_ARRAY);
+        unsigned res=(unsigned)attribute_type | (unsigned)DataType::TYPE_ACCESS_ARRAY;
+        attribute_type = (chaos::DataType::DataType)(res);
     }
     return err;
 }
