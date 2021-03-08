@@ -28,7 +28,7 @@
 using namespace chaos;
 using namespace chaos::common::data::cache;
 using namespace chaos::cu::driver_manager::driver;
-
+using namespace driver::data_import;
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImportHistory)
 
 #define DI_CUSTOM_HEAD "[" << getCUID() << " - " << getCUInstance() << "] - "

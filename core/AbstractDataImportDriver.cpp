@@ -26,9 +26,9 @@
 #include <chaos/cu_toolkit/driver_manager/driver/AbstractDriverPlugin.h>
 
 #include <boost/lexical_cast.hpp>
-
+#include "AttributeOffLen.h"
 using namespace chaos::cu::driver_manager::driver;
-
+using namespace driver::data_import;
 #define FREE_MALLOC(x) if(x){free(x); x=NULL;}
 
 #define ADIDLAPP_	INFO_LOG(AbstractDataImportDriver)
@@ -39,6 +39,9 @@ using namespace chaos::cu::driver_manager::driver;
 DEFAULT_CU_DRIVER_PLUGIN_CONSTRUCTOR(AbstractDataImportDriver) {
     buffer_data_block = NULL;
     buffer_len = 0L;
+    
+    maxUpdateRefresh=100;
+
 }
 
 //default descrutcor
@@ -64,7 +67,14 @@ bool AbstractDataImportDriver::growMem(unsigned int new_mem_size) {
 }
 
 int AbstractDataImportDriver::fetch(const std::string key){
- return fetchData(buffer_data_block,buffer_len,key);
+     std::map<std::string, uint64_t>::iterator i   = last_fetch.find(key);
+  uint64_t                                  now = chaos::common::utility::TimingUtil::getTimeStamp();
+  if ((i == last_fetch.end()) || ((now - i->second) > maxUpdateRefresh)) {
+        last_fetch[key] = now;
+         return fetchData(buffer_data_block,buffer_len,key);
+
+  }
+    return 0;
 }
 int AbstractDataImportDriver::fetchData(void *buffer, unsigned int buffer_len,const std::string key){
         ADIDLERR_ << "Not implemented";
@@ -83,6 +93,10 @@ int AbstractDataImportDriver::readDataOffset(void* data_ptr,
     //copy seletected portion of data
     std::memcpy(data_ptr, (buffer_data_block+offset), lenght);
     return err;
+}
+int AbstractDataImportDriver::readDataOffset(AttributeOffLen*v){
+    return copy(v,(buffer_data_block+v->offset));
+
 }
 
 int  AbstractDataImportDriver::readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght){

@@ -22,32 +22,32 @@
 #define ChaosRTControlUnit_DataImportHistory_h
 
 #include <chaos/cu_toolkit/control_manager/RTAbstractControlUnit.h>
-#include <driver/data-import/core/DataImportDriverInterface.h>
 #include <common/misc/data/core/DBbaseFactory.h>
+#include <driver/data-import/core/DataImportDriverInterface.h>
 #include "DataImport.h"
+namespace driver {
+namespace data_import {
 
+class DataImportHistory : public DataImport {
+  PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImportHistory)
+  ::common::misc::data::DataSet* history;
 
-class DataImportHistory:public DataImport {
-    PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImportHistory)
-    ::common::misc::data::DataSet* history;
-
-    ::common::misc::data::DBbase* db;
+  ::common::misc::data::DBbase* db;
   //  {"db":{"dbtype":string,"dbname":string,"dbserver":string,"dbreplication":string}}
-public:
-    /*!
+ public:
+  /*!
      Construct a new CU with full constructor
      */
-    DataImportHistory(const std::string& _control_unit_id,
-               const std::string& _control_unit_param,
-               const ControlUnitDriverList& _control_unit_drivers);
-    /*!
+  DataImportHistory(const std::string&           _control_unit_id,
+                    const std::string&           _control_unit_param,
+                    const ControlUnitDriverList& _control_unit_drivers);
+  /*!
      Destructor a new CU
      */
-    ~DataImportHistory();
+  ~DataImportHistory();
 
-protected:
-
-    /*!
+ protected:
+  /*!
      read the json control unit load parameter need to create the dataset form the data to import.
      The json format is like the template below:
      {
@@ -71,35 +71,35 @@ protected:
      }]
      }
      */
-    void unitDefineActionAndDataset()throw(chaos::CException);
-    /*!(Optional)
+  void unitDefineActionAndDataset() throw(chaos::CException);
+  /*!(Optional)
      Define the Control Unit custom attribute
      */
-    void unitDefineCustomAttribute();
-    /*!(Optional)
+  void unitDefineCustomAttribute();
+  /*!(Optional)
      Initialize the Control Unit and all driver, with received param from MetadataServer
      */
-    void unitInit() throw(chaos::CException);
-    /*!(Optional)
+  void unitInit() throw(chaos::CException);
+  /*!(Optional)
      Execute the work, this is called with a determinated delay
      */
-    void unitStart() throw(chaos::CException);
-    /*!
+  void unitStart() throw(chaos::CException);
+  /*!
      Execute the work, this is called with a determinated delay, it must be as fast as possible
      */
-    void unitRun() throw(chaos::CException);
-    
-    /*!(Optional)
+  void unitRun() throw(chaos::CException);
+
+  /*!(Optional)
      The Control Unit will be stopped
      */
-    void unitStop() throw(chaos::CException);
-    
-    /*!(Optional)
+  void unitStop() throw(chaos::CException);
+
+  /*!(Optional)
      The Control Unit will be deinitialized and disposed
      */
-    void unitDeinit() throw(chaos::CException);
-    
-    
+  void unitDeinit() throw(chaos::CException);
 };
+}  // namespace data_import
+}  // namespace driver
 
 #endif

@@ -23,7 +23,12 @@
 
 #include <chaos/cu_toolkit/driver_manager/driver/AbstractDriverPlugin.h>
 
+namespace driver
+{
 
+namespace data_import
+{
+    struct AttributeOffLen;
 typedef enum DataImportDriverOpcode {
     //update the data block from the subclass calling fetchData
     DataImportDriverOpcode_FETCH_NEW_DATABLOCK  = chaos::cu::driver_manager::driver::OpcodeType::OP_USER,
@@ -72,6 +77,10 @@ protected:
     
     //! expand the datapack memory buffer
     bool growMem(unsigned int new_mem_size);
+        
+    std::map<const std::string,uint64_t> last_fetch;
+    uint32_t maxUpdateRefresh;
+
 public:
 	AbstractDataImportDriver();
 	~AbstractDataImportDriver();
@@ -83,7 +92,11 @@ public:
     virtual int fetchData(void *buffer, unsigned int buffer_len,const std::string key="");
     virtual int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
     virtual int readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght);
+    // fill the attribute
+    virtual int readDataOffset(AttributeOffLen*v);
+
+    void setMaxUpdateRefresh(const uint32_t ms_value){maxUpdateRefresh=ms_value;}
 
 };
-
+}}
 #endif /* defined(__ControlUnitTest__DummyDriver__) */

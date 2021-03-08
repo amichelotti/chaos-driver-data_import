@@ -41,13 +41,13 @@ FilePosixDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-
+using namespace ::driver::data_import;
 //GET_PLUGIN_CLASS_DEFINITION
 //we need only to define the driver because we don't are makeing a plugin
-OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(FilePosixDataImporterDriver, 1.0.0, FilePosixDataImporterDriver)
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data_key [string])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data_pack_len [uint32_t])
+OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(FilePosixDataImporterDriver, 1.0.0, ::driver::data_import::FilePosixDataImporterDriver)
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, server_url [array of strings like host:port])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, data_key [string])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, data_pack_len [uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 
 /*
