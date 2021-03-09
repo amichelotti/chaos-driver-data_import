@@ -9,12 +9,10 @@ add_subdirectory(models)
 SET(data_import_src
    core/AttributeOffLen.cpp
    core/DataImport.cpp
-   core/RTGenericDanteCU.cpp
   core/AbstractDataImportDriver.cpp
   core/AbstractDataImportDriver.cpp
   core/DataImportDriverInterface.cpp 
   core/RTDB.cpp core/DataImportHistory.cpp)
-
 
 
 IF(BUILD_FORCE_STATIC)
