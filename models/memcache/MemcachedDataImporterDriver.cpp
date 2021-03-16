@@ -256,7 +256,7 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
         std::memcpy((void *)pnt, (const char *)value, value_length);
         tot_size += value_length;
         buffer_len -= value_length;
-      /*  MemcachedDataImporterDriverLDBG_ << "READ[" << *it
+       /* MemcachedDataImporterDriverLDBG_ << "READ[" << *it
                                          << "] size:" << value_length;*/
       }
       free(value);

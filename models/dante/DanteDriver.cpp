@@ -44,14 +44,12 @@ using namespace driver::data_import;
 namespace driver {
 
 namespace data_import {
-  
+
 OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(DanteDriver, 1.0.0, ::driver::data_import::DanteDriver)
 REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver,data_keys[array of strings])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver,data_pack_len[uint32_t])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, data_keys[array of strings])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, data_pack_len[uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
-
-
 
 // GET_PLUGIN_CLASS_DEFINITION
 // we need to define the driver with alias version and a class that implement it
@@ -171,7 +169,7 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDrvProperties() {
   if (sta.get()) {
     res->addCSDataValue("STA", *(sta.get()));
   }
- // DanteDriverLDBG_ << " DYN:" << dyn->getCompliantJSONString() << " STA:" << sta->getJSONString() << " Returning " << res->getCompliantJSONString();
+  // DanteDriverLDBG_ << " DYN:" << dyn->getCompliantJSONString() << " STA:" << sta->getJSONString() << " Returning " << res->getCompliantJSONString();
 
   return res;
 }
@@ -231,6 +229,60 @@ chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func,
 
   return retv;
 }
+/*
+bool DanteDriver::dataHasChanged(const std::string& key){
+  
+}
+*/
+int DanteDriver::getData(chaos::common::data::CDataWrapper &in, DSTYPE typ) {
+  ChaosStringSet keys;
+  int            err;
+
+  int indx = (typ == DYNAMIC) ? 0 : 1;
+
+  in.getAllKey(keys);
+  for (ChaosStringSet::iterator i = keys.begin(); i != keys.end(); i++) {
+    std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k = key2item[indx].find(*i);
+   // DanteDriverLDBG_ << "Attempt to read :" << *i<<" found:"<<(k != key2item[indx].end());
+
+    if (k != key2item[indx].end()) {
+      if ((err = fetch(k->second->keybind)) != 0) {
+        DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
+        return -1;
+      }
+      if ((err = readDataOffset(k->second))) {
+        DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
+        return -2;
+
+      } else {
+        uint32_t                  tt       = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+        chaos::DataType::DataType ele_type = k->second->type;
+  //      DanteDriverLDBG_ << "read :" << k->first<<" from:"<<k->second->keybind;
+
+        if (tt) {
+          tt       = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+          ele_type = (chaos::DataType::DataType)(tt);
+          in.setValue(k->first, (const char *)k->second->buffer, k->second->len);
+
+        } else if (ele_type == chaos::DataType::TYPE_BOOLEAN) {
+          in.setValue(k->first, *(bool *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_INT32) {
+          in.setValue(k->first, *(int32_t *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_DOUBLE) {
+          in.setValue(k->first, *(double *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_INT64) {
+          in.setValue(k->first, *(int64_t *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_STRING) {
+          std::string a((const char *)k->second->buffer);
+          in.setValue(k->first, a);
+        } else if (ele_type == chaos::DataType::TYPE_BYTEARRAY) {
+          in.setValue(k->first, (const char *)k->second->buffer, k->second->len);
+        }
+      }
+    }
+  }
+  return 0;
+}
 
 chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
   chaos::common::data::CDWUniquePtr                                               res(new CDataWrapper());
@@ -240,7 +292,7 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
   for (k = key2item[indx].begin(); k != key2item[indx].end(); k++) {
     if ((err = fetch(k->second->keybind)) != 0) {
       DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
-  }
+    }
     if ((err = readDataOffset(k->second))) {
       DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
     } else {
@@ -260,18 +312,18 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
             //!modifier to be ored to normal data types
             TYPE_ACCESS_ARRAY=0x100,
             */
-      uint32_t tt = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
-      chaos::DataType::DataType ele_type=k->second->type;
+      uint32_t                  tt       = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+      chaos::DataType::DataType ele_type = k->second->type;
       if (tt) {
-        tt              = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
-       ele_type = (chaos::DataType::DataType)(tt);
-       /* if(ele_type==chaos::DataType::TYPE_DOUBLE){
+        tt       = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+        ele_type = (chaos::DataType::DataType)(tt);
+        /* if(ele_type==chaos::DataType::TYPE_DOUBLE){
          
           DanteDriverLDBG_ << " DOUBLE DUMP  :" << std::hex<<*(uint64_t*)k->second->buffer<<" dbl:"<< chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                                                             chaos::common::utility::big_endian, double>(*((double *)k->second->buffer));;
         }*/
         res->appendArray(k->first, ele_type, (const char *)k->second->buffer, k->second->len);
-       // DanteDriverLDBG_ << " VECTOR :" << k->first<<res->getJSONString();
+        // DanteDriverLDBG_ << " VECTOR :" << k->first<<res->getJSONString();
 
       } else if (ele_type == chaos::DataType::TYPE_BOOLEAN) {
         res->addBoolValue(k->first, *(bool *)k->second->buffer);
@@ -300,10 +352,10 @@ int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxs
     DanteDriverLERR_ << "Key " << key << " not found";
     return -1;
   }
-  ::driver::data_import::AttributeOffLen *  it  = k->second;
+  ::driver::data_import::AttributeOffLen *it = k->second;
   if ((err = fetch(it->keybind)) != 0) {
-      DanteDriverLERR_ << "ERROR fetching:" << it->keybind;
-      return err;
+    DanteDriverLERR_ << "ERROR fetching:" << it->keybind;
+    return err;
   }
   if ((err = readDataOffset(it))) {
     DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;
@@ -313,7 +365,7 @@ int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxs
     DanteDriverLERR_ << "Error attribute " << it->name << " size of type: " << it->len << " bigger than allocated:" << maxsize;
     return -200;
   }
-  memcpy(ptr,it->buffer,it->len);
+  memcpy(ptr, it->buffer, it->len);
   return err;
 }
 }  // namespace data_import

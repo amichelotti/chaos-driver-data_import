@@ -90,7 +90,10 @@ public:
     int getData(const std::string& key,void*ptr,DSTYPE typ=DYNAMIC,int maxsize=0);
     chaos::common::data::CDWUniquePtr getDrvProperties();
     chaos::common::data::CDWUniquePtr getDataset(DSTYPE typ=DYNAMIC);
-              
+    // retrieve in in the keys requested
+    int getData(chaos::common::data::CDataWrapper&in,DSTYPE typ=DYNAMIC);
+
+   // bool dataHasChanged(const std::string& key="");
     int setDrvProperty(const std::string& key, const std::string& value);
 
     DanteDriver();
