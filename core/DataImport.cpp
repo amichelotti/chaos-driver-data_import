@@ -181,7 +181,7 @@ void DataImport::unitRun() throw(chaos::CException) {
     if((err = driver_interface->fetchNewDatablock())) {
       if(err==  DATA_IMPORT_NO_CHANGE){
 	    DILDBG_<<" No Data Change";
-        setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
+       // setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
 
 	    return;
       }
