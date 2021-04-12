@@ -36,6 +36,7 @@
 #include <common/crest/chaos_crest.h>
 
 #include <driver/data-import/core/AttributeOffLen.h>
+DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(DanteDriver)
 
 namespace driver{
 
@@ -52,6 +53,7 @@ class DanteDriver:public MemcachedDataImporterDriver {
     ::driver::data_import::AttributeOffLenVec static_attribute_off_len_vec;
 
     std::map<const std::string,::driver::data_import::AttributeOffLen *> key2item[2];
+
 protected:
     void updateProperties();
     /*!
@@ -86,9 +88,12 @@ public:
      * @return int 0 on success
      */
     int getData(const std::string& key,void*ptr,DSTYPE typ=DYNAMIC,int maxsize=0);
- 
     chaos::common::data::CDWUniquePtr getDrvProperties();
-                  
+    chaos::common::data::CDWUniquePtr getDataset(DSTYPE typ=DYNAMIC);
+    // retrieve in in the keys requested
+    int getData(chaos::common::data::CDataWrapper&in,DSTYPE typ=DYNAMIC);
+
+   // bool dataHasChanged(const std::string& key="");
     int setDrvProperty(const std::string& key, const std::string& value);
 
     DanteDriver();

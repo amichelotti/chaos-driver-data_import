@@ -1,9 +1,9 @@
 /*
  *	DataImportDriverInterface.h
- *	!CHOAS
- *	Created by Bisegni Claudio.
+ *	!CHAOS
+ *	Created by Andrea Michelotti
  *
- *    	Copyright 2015 INFN, National Institute of Nuclear Physics
+ *    	Copyright 2021 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
  *    	you may not use this file except in compliance with the License.
@@ -24,6 +24,11 @@
 #include <chaos/cu_toolkit/driver_manager/driver/DriverTypes.h>
 #include <chaos/cu_toolkit/driver_manager/driver/DriverAccessor.h>
 #include "AbstractDataImportDriver.h"
+namespace driver
+{
+
+namespace data_import
+{
 
 /*!
  Class that simplify the method call of the driver hiding the message system
@@ -46,5 +51,5 @@ public:
     int readAttribute(void *attribute_ptr, const std::string& key,int from, int len);
 
 };
-
+}}
 #endif /* defined(__DataImport__DataImportDriverInterface__) */

@@ -1,9 +1,9 @@
 /*
  *	DataImport.h
- *	!CHOAS
- *	Created by Bisegni Claudio.
+ *	!CHAOS
+ *	Created by Andrea Michelotti
  *
- *    	Copyright 2012 INFN, National Institute of Nuclear Physics
+ *    	Copyright 2021 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
  *    	you may not use this file except in compliance with the License.
@@ -26,28 +26,31 @@
 
 #include "AttributeOffLen.h"
 
-class DataImport:
-public chaos::cu::control_manager::RTAbstractControlUnit {
-    PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImport)
-protected:
-    ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
-    
-    DataImportDriverInterface *driver_interface;
-public:
-    /*!
+namespace driver {
+
+namespace data_import {
+
+class DataImport : public chaos::cu::control_manager::RTAbstractControlUnit {
+  PUBLISHABLE_CONTROL_UNIT_INTERFACE(DataImport)
+ protected:
+  ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
+
+  DataImportDriverInterface* driver_interface;
+
+ public:
+  /*!
      Construct a new CU with full constructor
      */
-    DataImport(const std::string& _control_unit_id,
-               const std::string& _control_unit_param,
-               const ControlUnitDriverList& _control_unit_drivers);
-    /*!
+  DataImport(const std::string&           _control_unit_id,
+             const std::string&           _control_unit_param,
+             const ControlUnitDriverList& _control_unit_drivers);
+  /*!
      Destructor a new CU
      */
-    ~DataImport();
-    
-    
-protected:
-    /*!
+  ~DataImport();
+
+ protected:
+  /*!
      read the json control unit load parameter need to create the dataset form the data to import.
      The json format is like the template below:
      {
@@ -71,36 +74,34 @@ protected:
      }]
      }
      */
-    void unitDefineActionAndDataset()throw(chaos::CException);
-    /*!(Optional)
+  void unitDefineActionAndDataset() throw(chaos::CException);
+  /*!(Optional)
      Define the Control Unit custom attribute
      */
-    void unitDefineCustomAttribute();
-    /*!(Optional)
+  void unitDefineCustomAttribute();
+  /*!(Optional)
      Initialize the Control Unit and all driver, with received param from MetadataServer
      */
-    void unitInit() throw(chaos::CException);
-    /*!(Optional)
+  void unitInit() throw(chaos::CException);
+  /*!(Optional)
      Execute the work, this is called with a determinated delay
      */
-    void unitStart() throw(chaos::CException);
-    /*!
+  void unitStart() throw(chaos::CException);
+  /*!
      Execute the work, this is called with a determinated delay, it must be as fast as possible
      */
-    void unitRun() throw(chaos::CException);
-    
-    /*!(Optional)
+  void unitRun() throw(chaos::CException);
+
+  /*!(Optional)
      The Control Unit will be stopped
      */
-    void unitStop() throw(chaos::CException);
-    
-    /*!(Optional)
+  void unitStop() throw(chaos::CException);
+
+  /*!(Optional)
      The Control Unit will be deinitialized and disposed
      */
-    void unitDeinit() throw(chaos::CException);
-    
-    
-    
+  void unitDeinit() throw(chaos::CException);
 };
-
+}  // namespace data_import
+}  // namespace driver
 #endif

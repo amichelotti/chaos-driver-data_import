@@ -1,9 +1,9 @@
 /*
  *	DanteDriver.cpp
  *	!CHAOS
- *	Created by Bisegni Claudio.
+ *	Created by Andrea Michelotti
  *
- *    	Copyright 2012 INFN, National Institute of Nuclear Physics
+ *    	Copyright 2021 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
  *    	you may not use this file except in compliance with the License.
@@ -23,8 +23,7 @@
 #define DanteDriverLERR_ ERR_LOG(DanteDriver)
 
 #define DanteDriverLOG_MC_ERROR(x)                        \
-  if (mc_result != MEMCACHED_SUCCESS)                     \
-  {                                                       \
+  if (mc_result != MEMCACHED_SUCCESS) {                   \
     DanteDriverLERR_ << memcached_strerror(mc_client, x); \
   }
 
@@ -32,27 +31,32 @@
 
 #include <json/json.h>
 
+#include <chaos/common/utility/TimingUtil.h>
+#include <chaos/common/utility/endianess.h>
+#include <common/crest/chaos_crest.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-#include <common/crest/chaos_crest.h>
-#include <chaos/common/utility/endianess.h>
 
 // GET_PLUGIN_CLASS_DEFINITION
 // we need only to define the driver because we don't are makeing a plugin
 using namespace chaos::common::data;
-namespace driver
-{
+using namespace driver::data_import;
+namespace driver {
 
-namespace data_import
-{
+namespace data_import {
+
+OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(DanteDriver, 1.0.0, ::driver::data_import::DanteDriver)
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, server_url [array of strings like host:port])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, data_keys[array of strings])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::DanteDriver, data_pack_len[uint32_t])
+CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
+
 // GET_PLUGIN_CLASS_DEFINITION
 // we need to define the driver with alias version and a class that implement it
-DanteDriver::DanteDriver()
-{
+DanteDriver::DanteDriver() {
 }
 
-DanteDriver::~DanteDriver()
-{
+DanteDriver::~DanteDriver() {
   DEBUG_CODE(DanteDriverLDBG_ << "DEINIT MEMCACHED");
 }
 /**
@@ -61,145 +65,122 @@ DanteDriver::~DanteDriver()
  * @param initParameter a JSON describing memcached server, dante rest server, and dataset to retrieve.
  */
 void DanteDriver::driverInit(const char *initParameter) throw(
-    chaos::CException)
-{
-
+    chaos::CException) {
   MemcachedDataImporterDriver::driverInit(initParameter);
   // parse json string
-  std::string json_string(initParameter);
+  std::string  json_string(initParameter);
   Json::Reader json_reader;
-  Json::Value json_parameter;
+  Json::Value  json_parameter;
 
-  if (!json_reader.parse(json_string, json_parameter))
-  {
-    throw chaos::CException(-1, "Json init paremeter has not been parsed",
-                            __PRETTY_FUNCTION__);
+  if (!json_reader.parse(json_string, json_parameter)) {
+    throw chaos::CException(-1, "Json init paremeter has not been parsed", __PRETTY_FUNCTION__);
   }
   const Json::Value &json_dyn = json_parameter["dyn_ds"];
-  if (json_dyn.isNull())
-  {
+  if (json_dyn.isNull()) {
     DanteDriverLERR_ << " Dynamic dataset is not set 'dyn_ds'";
-  }
-  else
-  {
+  } else {
     attribute_off_len_vec = ::driver::data_import::json2Attribute(json_dyn);
   }
   const Json::Value &json_sta = json_parameter["sta_ds"];
-  if (json_sta.isNull())
-  {
+  if (json_sta.isNull()) {
     DanteDriverLERR_ << " Static dataset is not set 'sta_ds'";
-  }
-  else
-  {
+  } else {
     static_attribute_off_len_vec = ::driver::data_import::json2Attribute(json_sta);
   }
 
   // fetch value from json document
   const Json::Value &json_server_urls = json_parameter["dante_server_url"];
   // check madatory data
-  if (json_server_urls.isNull())
-  {
+  if (json_server_urls.isNull()) {
     throw chaos::CException(-2, "dante_server_url is mandatory", __PRETTY_FUNCTION__);
   }
-  danteRestServer = json_server_urls.asString();
+  danteRestServer                 = json_server_urls.asString();
   const Json::Value &json_element = json_parameter["dante_element"];
   // check madatory data
-  if (json_element.isNull())
-  {
+  if (json_element.isNull()) {
     throw chaos::CException(-2, "dante_element is mandatory", __PRETTY_FUNCTION__);
   }
-  danteElement = json_element.asString();
+  danteElement                 = json_element.asString();
   const Json::Value &rest_user = json_parameter["dante_user"];
-  if (!rest_user.isNull())
-  {
+  if (!rest_user.isNull()) {
     username = rest_user.asString();
   }
   const Json::Value &rest_passwd = json_parameter["dante_password"];
 
-  if (!rest_passwd.isNull())
-  {
+  if (!rest_passwd.isNull()) {
     password = rest_passwd.asString();
   }
   for (::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
-       it != attribute_off_len_vec.end(); it++)
-  {
+       it != attribute_off_len_vec.end();
+       it++) {
     key2item[0][(*it)->name] = *it;
-    if ((*it)->buffer == NULL)
-    {
-      (*it)->buffer = calloc(1,(*it)->len +(((*it)->type==chaos::DataType::TYPE_STRING)?1:0));
+    if ((*it)->buffer == NULL) {
+      (*it)->buffer = calloc(1, (*it)->len + (((*it)->type == chaos::DataType::TYPE_STRING) ? 1 : 0));
     }
   }
 
   for (::driver::data_import::AttributeOffLenIterator it = static_attribute_off_len_vec.begin();
-       it != static_attribute_off_len_vec.end(); it++)
-  {
+       it != static_attribute_off_len_vec.end();
+       it++) {
     key2item[1][(*it)->name] = *it;
-    if ((*it)->buffer == NULL)
-    {
-      (*it)->buffer = calloc(1,(*it)->len+(((*it)->type==chaos::DataType::TYPE_STRING)?1:0));
+    if ((*it)->buffer == NULL) {
+      (*it)->buffer = calloc(1, (*it)->len + (((*it)->type == chaos::DataType::TYPE_STRING) ? 1 : 0));
     }
   }
-  crest_handle = chaos_crest_open(danteRestServer.c_str());
+  if (danteRestServer.size() > 0) {
+    crest_handle = chaos_crest_open(danteRestServer.c_str());
+  } else {
+    crest_handle = NULL;
+  }
 }
-void DanteDriver::updateProperties()
-{
+void DanteDriver::updateProperties() {
   int err;
-  if ((err = fetch()) != 0)
-  {
+  if ((err = fetch()) != 0) {
     DanteDriverLERR_ << "ERROR fetching";
   }
   for (::driver::data_import::AttributeOffLenIterator it = static_attribute_off_len_vec.begin();
-       it != static_attribute_off_len_vec.end(); it++)
-  {
-    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len)))
-    {
-    DanteDriverLERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
+       it != static_attribute_off_len_vec.end();
+       it++) {
+    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))) {
+      DanteDriverLERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
     }
-    copy((*it)->buffer,*it);
+    copy((*it)->buffer, *it);
   }
 
   for (::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
-       it != attribute_off_len_vec.end(); it++)
-  {
-    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len)))
-    {
+       it != attribute_off_len_vec.end();
+       it++) {
+    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))) {
       DanteDriverLERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
     }
-        copy((*it)->buffer,*it);
-
+    copy((*it)->buffer, *it);
   }
 }
 
-chaos::common::data::CDWUniquePtr DanteDriver::getDrvProperties()
-{
+chaos::common::data::CDWUniquePtr DanteDriver::getDrvProperties() {
   chaos::common::data::CDWUniquePtr res(new chaos::common::data::CDataWrapper());
   updateProperties();
   chaos::common::data::CDWUniquePtr dyn = attribute2CDW(attribute_off_len_vec);
   chaos::common::data::CDWUniquePtr sta = attribute2CDW(static_attribute_off_len_vec);
 
-  if (dyn.get())
-  {
+  if (dyn.get()) {
     res->addCSDataValue("DYN", *(dyn.get()));
   }
-  if (sta.get())
-  {
+  if (sta.get()) {
     res->addCSDataValue("STA", *(sta.get()));
   }
-  DanteDriverLDBG_ << " DYN:" << dyn->getCompliantJSONString() << " STA:" << sta->getJSONString() << " Returning " << res->getCompliantJSONString();
+  // DanteDriverLDBG_ << " DYN:" << dyn->getCompliantJSONString() << " STA:" << sta->getJSONString() << " Returning " << res->getCompliantJSONString();
 
   return res;
 }
 
-int DanteDriver::setDrvProperty(const std::string &key, const std::string &value)
-{
+int DanteDriver::setDrvProperty(const std::string &key, const std::string &value) {
   DanteDriverLERR_ << " Attributes are read only, cannot set:" << key << " to:" << value;
   return -1;
 }
 
-void DanteDriver::driverDeinit() throw(chaos::CException)
-{
-  for (::driver::data_import::AttributeOffLenIterator i = attribute_off_len_vec.begin(); i != attribute_off_len_vec.end(); i++)
-  {
+void DanteDriver::driverDeinit() throw(chaos::CException) {
+  for (::driver::data_import::AttributeOffLenIterator i = attribute_off_len_vec.begin(); i != attribute_off_len_vec.end(); i++) {
     free((*i)->buffer);
     free((*i)->old_buffer);
     delete (*i);
@@ -207,32 +188,29 @@ void DanteDriver::driverDeinit() throw(chaos::CException)
   MemcachedDataImporterDriver::driverDeinit();
 }
 
-chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func, const chaos::common::data::CDataWrapper *par)
-{
+chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func, const chaos::common::data::CDataWrapper *par) {
   std::string json_par = "{}";
-  char ansbuf[1024];
+  char        ansbuf[1024];
   memset(ansbuf, 0, sizeof(ansbuf));
+  if (crest_handle == NULL) {
+    return chaos::common::data::CDWUniquePtr();
+  }
   chaos::common::data::CDWUniquePtr retv = CDWUniquePtr(new CDataWrapper());
-  int ret;
+  int                               ret;
   chaos::common::data::CDataWrapper protocol_error;
-  std::stringstream full;
+  std::stringstream                 full;
   full << "/element/" << danteElement << "/" << func;
 
-  if (par)
-  {
+  if (par) {
     json_par = par->getCompliantJSONString();
   }
   ret = ::http_post(crest_handle, full.str().c_str(), json_par.c_str(), json_par.size() + 1, ansbuf, sizeof(ansbuf));
-  if (ret == 0)
-  {
-    try
-    {
+  if (ret == 0) {
+    try {
       DanteDriverLDBG_ << "Req:\"" << full.str() << " data:" << json_par << " answer:" << ansbuf;
       retv->setSerializedJsonData(ansbuf);
       DanteDriverLDBG_ << "\" Server Returned:" << ansbuf;
-    }
-    catch (...)
-    {
+    } catch (...) {
       std::stringstream ss;
       ss << "REQ:\"" << full.str() << "\" ret:" << ret << " invalid JSON response:" << ansbuf;
       DanteDriverLERR_ << ss.str();
@@ -240,9 +218,7 @@ chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func,
       retv->addCSDataValue(PROT_ERROR, protocol_error);
       DanteDriverLERR_ << "Invalid response" << retv->getCompliantJSONString();
     }
-  }
-  else
-  {
+  } else {
     protocol_error.addStringValue("msg", "SERVER ERROR");
     protocol_error.addInt32Value("err", ret);
 
@@ -253,38 +229,144 @@ chaos::common::data::CDWUniquePtr DanteDriver::postData(const std::string &func,
 
   return retv;
 }
+/*
+bool DanteDriver::dataHasChanged(const std::string& key){
+  
+}
+*/
+int DanteDriver::getData(chaos::common::data::CDataWrapper &in, DSTYPE typ) {
+  ChaosStringSet keys;
+  int            err;
 
-int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxsize)
-{
-  int err = 0;
   int indx = (typ == DYNAMIC) ? 0 : 1;
-  std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k = key2item[indx].find(key);
-  if (k == key2item[indx].end())
-  {
+
+  in.getAllKey(keys);
+  for (ChaosStringSet::iterator i = keys.begin(); i != keys.end(); i++) {
+    std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k = key2item[indx].find(*i);
+   // DanteDriverLDBG_ << "Attempt to read :" << *i<<" found:"<<(k != key2item[indx].end());
+
+    if (k != key2item[indx].end()) {
+      if ((err = fetch(k->second->keybind)) != 0) {
+        DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
+        return -1;
+      }
+      if ((err = readDataOffset(k->second))) {
+        DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
+        return -2;
+
+      } else {
+        uint32_t                  tt       = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+        chaos::DataType::DataType ele_type = k->second->type;
+  //      DanteDriverLDBG_ << "read :" << k->first<<" from:"<<k->second->keybind;
+
+        if (tt) {
+          tt       = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+          ele_type = (chaos::DataType::DataType)(tt);
+          in.setValue(k->first, (const char *)k->second->buffer, k->second->len);
+
+        } else if (ele_type == chaos::DataType::TYPE_BOOLEAN) {
+          in.setValue(k->first, *(bool *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_INT32) {
+          in.setValue(k->first, *(int32_t *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_DOUBLE) {
+          in.setValue(k->first, *(double *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_INT64) {
+          in.setValue(k->first, *(int64_t *)k->second->buffer);
+        } else if (ele_type == chaos::DataType::TYPE_STRING) {
+          std::string a((const char *)k->second->buffer);
+          in.setValue(k->first, a);
+        } else if (ele_type == chaos::DataType::TYPE_BYTEARRAY) {
+          in.setValue(k->first, (const char *)k->second->buffer, k->second->len);
+        }
+      }
+    }
+  }
+  return 0;
+}
+
+chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
+  chaos::common::data::CDWUniquePtr                                               res(new CDataWrapper());
+  std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k;
+  int                                                                             indx = (typ == DYNAMIC) ? 0 : 1;
+  int                                                                             err;
+  for (k = key2item[indx].begin(); k != key2item[indx].end(); k++) {
+    if ((err = fetch(k->second->keybind)) != 0) {
+      DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
+    }
+    if ((err = readDataOffset(k->second))) {
+      DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
+    } else {
+      /*  TYPE_BOOLEAN = 0,
+            //!Integer 32 bit length
+            TYPE_INT32,
+            //!Integer 64 bit length
+            TYPE_INT64,
+            //!Double 64 bit length
+            TYPE_DOUBLE,
+            //!C string variable length
+            TYPE_STRING,
+            //!byte array variable length
+            TYPE_BYTEARRAY,
+            
+            TYPE_CLUSTER,
+            //!modifier to be ored to normal data types
+            TYPE_ACCESS_ARRAY=0x100,
+            */
+      uint32_t                  tt       = ((unsigned)k->second->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+      chaos::DataType::DataType ele_type = k->second->type;
+      if (tt) {
+        tt       = ((unsigned)k->second->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+        ele_type = (chaos::DataType::DataType)(tt);
+        /* if(ele_type==chaos::DataType::TYPE_DOUBLE){
+         
+          DanteDriverLDBG_ << " DOUBLE DUMP  :" << std::hex<<*(uint64_t*)k->second->buffer<<" dbl:"<< chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                            chaos::common::utility::big_endian, double>(*((double *)k->second->buffer));;
+        }*/
+        res->appendArray(k->first, ele_type, (const char *)k->second->buffer, k->second->len);
+        // DanteDriverLDBG_ << " VECTOR :" << k->first<<res->getJSONString();
+
+      } else if (ele_type == chaos::DataType::TYPE_BOOLEAN) {
+        res->addBoolValue(k->first, *(bool *)k->second->buffer);
+      } else if (ele_type == chaos::DataType::TYPE_INT32) {
+        res->addInt32Value(k->first, *(int32_t *)k->second->buffer);
+      } else if (ele_type == chaos::DataType::TYPE_DOUBLE) {
+        res->addDoubleValue(k->first, *(double *)k->second->buffer);
+      } else if (ele_type == chaos::DataType::TYPE_INT64) {
+        res->addInt64Value(k->first, *(int64_t *)k->second->buffer);
+      } else if (ele_type == chaos::DataType::TYPE_STRING) {
+        std::string a((const char *)k->second->buffer);
+        res->addStringValue(k->first, a);
+      } else if (ele_type == chaos::DataType::TYPE_BYTEARRAY) {
+        res->addBinaryValue(k->first, (const char *)k->second->buffer, k->second->len);
+      }
+    }
+  }
+  return res;
+}
+
+int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxsize) {
+  int                                                                             err  = 0;
+  int                                                                             indx = (typ == DYNAMIC) ? 0 : 1;
+  std::map<const std::string, ::driver::data_import::AttributeOffLen *>::iterator k    = key2item[indx].find(key);
+  if (k == key2item[indx].end()) {
     DanteDriverLERR_ << "Key " << key << " not found";
     return -1;
   }
   ::driver::data_import::AttributeOffLen *it = k->second;
-
-  if ((err = fetch(it->keybind)) != 0)
-  {
+  if ((err = fetch(it->keybind)) != 0) {
     DanteDriverLERR_ << "ERROR fetching:" << it->keybind;
     return err;
   }
-
-  if ((err = readDataOffset(it->buffer, it->keybind, it->offset, it->len)))
-  {
+  if ((err = readDataOffset(it))) {
     DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;
     return err;
   }
-  if ((maxsize > 0) && (maxsize < it->len))
-  {
+  if ((maxsize > 0) && (maxsize < it->len)) {
     DanteDriverLERR_ << "Error attribute " << it->name << " size of type: " << it->len << " bigger than allocated:" << maxsize;
     return -200;
   }
-  copy(ptr,it);
-  
+  memcpy(ptr, it->buffer, it->len);
   return err;
 }
-} // namespace data_import
-} // namespace driver
+}  // namespace data_import
+}  // namespace driver

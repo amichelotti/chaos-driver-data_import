@@ -15,7 +15,6 @@ SET(data_import_src
   core/RTDB.cpp core/DataImportHistory.cpp)
 
 
-
 IF(BUILD_FORCE_STATIC)
   SET(CMAKE_EXE_LINKER_FLAGS "-static -Wl,--whole-archive -lchaos_common -Wl,--no-whole-archive")
   ADD_LIBRARY(${PROJECT_NAME} STATIC ${data_import_src})
