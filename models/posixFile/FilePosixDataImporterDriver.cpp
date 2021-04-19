@@ -247,11 +247,14 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 			buf = (char*)realloc(buf,lastLine.size()+1);
 			strncpy(buf,lastLine.c_str(),lastLine.size()+1);
 			buf[lastLine.size()]=0;
+			size=lastLine.size()+1;
 			DPRINT("tail:'%s'",lastLine.c_str());
 
 		}
 	    last_hash= current_hash;
-	    current_hash =::common::misc::data::simpleHash(buf,size);
+		if(buf && (size >0)){
+	    	current_hash =::common::misc::data::simpleHash(buf,size);
+		}
 	    
 	    DPRINT("read tail %d bytes, hash 0x%lx, last_hash 0x%lx",size,current_hash,last_hash);
 	    
