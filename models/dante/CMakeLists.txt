@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 2.8)
 project(chaos_driver_data_import_dante)
-SET(lib DanteDriver.cpp)
+SET(lib DanteDriver.cpp RTGenericDanteCU.cpp)
 
 IF(BUILD_FORCE_STATIC)
   SET(CMAKE_EXE_LINKER_FLAGS "-static -Wl,--whole-archive -lchaos_common -lcommon-crest-Wl,--no-whole-archive")

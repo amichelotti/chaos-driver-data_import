@@ -29,7 +29,7 @@ using namespace chaos;
 using namespace chaos::common::data::cache;
 using namespace chaos::cu::driver_manager::driver;
 using namespace chaos::cu::control_manager;
-
+using namespace driver::data_import;
 PUBLISHABLE_CONTROL_UNIT_IMPLEMENTATION(DataImport)
 
 #define DI_CUSTOM_HEAD "[" << getCUID()<< "] - "
@@ -181,7 +181,7 @@ void DataImport::unitRun() throw(chaos::CException) {
     if((err = driver_interface->fetchNewDatablock())) {
       if(err==  DATA_IMPORT_NO_CHANGE){
 	    DILDBG_<<" No Data Change";
-        setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
+       // setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
 
 	    return;
       }

@@ -30,16 +30,16 @@
 #include <driver/data-import/models/memcache/MemcachedDataImporterDriver.h>
 
 #include <json/json.h>
-
+#include <driver/data-import/core/AttributeOffLen.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/lexical_cast.hpp>
-
+using namespace driver::data_import;
 // GET_PLUGIN_CLASS_DEFINITION
 // we need only to define the driver because we don't are makeing a plugin
-OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(MemcachedDataImporterDriver, 1.0.0,MemcachedDataImporterDriver)
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver,data_keys[array of strings])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(MemcachedDataImporterDriver,data_pack_len[uint32_t])
+OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(MemcachedDataImporterDriver, 1.0.0,::driver::data_import::MemcachedDataImporterDriver)
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::MemcachedDataImporterDriver, server_url [array of strings like host:port])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::MemcachedDataImporterDriver,data_keys[array of strings])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::MemcachedDataImporterDriver,data_pack_len[uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 
 // GET_PLUGIN_CLASS_DEFINITION
@@ -244,7 +244,7 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
     char *value = memcached_get(mc_client, (*it).c_str(), (*it).length(),
                                 &value_length, &flags, &rc);
     // check if we have something
-    if (value != NULL) {
+    if ((value != NULL)&&(rc==MEMCACHED_SUCCESS)) {
       if (value_length > buffer_len) {
         err = -1;
         MemcachedDataImporterDriverLERR_ << "The size "<<value_length<<" of key " << *it
@@ -256,20 +256,27 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
         std::memcpy((void *)pnt, (const char *)value, value_length);
         tot_size += value_length;
         buffer_len -= value_length;
-        MemcachedDataImporterDriverLDBG_ << "READ[" << *it
-                                         << "] size:" << value_length;
+       /* MemcachedDataImporterDriverLDBG_ << "READ[" << *it
+                                         << "] size:" << value_length;*/
       }
       free(value);
       key_read++;
       err=0;
     } else {
       MemcachedDataImporterDriverLERR_ << "Error retriving data from key "
-                                       << *it;
+                                       << *it<<" ret:"<<rc;
       err = -2;
     }
      data_results[*it]=(err==0);
   }
   return 0;
+}
+
+int MemcachedDataImporterDriver::readDataOffset(AttributeOffLen*v){
+    copy(v,(buffer_data_block+key2off[v->keybind]+v->offset));
+    return (data_results[v->keybind]==true)?0:1;
+
+
 }
 int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
                                                 const std::string &key,

@@ -80,10 +80,92 @@ int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute
     }
     if (str_type.find("[]") != std::string::npos)
     {
-        attribute_type = (chaos::DataType::DataType)((unsigned)attribute_type | (unsigned)DataType::TYPE_ACCESS_ARRAY);
+        unsigned res=(unsigned)attribute_type | (unsigned)DataType::TYPE_ACCESS_ARRAY;
+        attribute_type = (chaos::DataType::DataType)(res);
     }
     return err;
 }
+int copy(AttributeOffLen*it,const char*ptr ){
+  bool vector = false;
+    int eletype = it->type;
+    int totsize = 0;
+    int elen = 0;
+    eletype=it->type;
+    int att=(int)DataType::TYPE_ACCESS_ARRAY;
+    if (eletype & att)
+    {
+        vector = true;
+        eletype &= ~DataType::TYPE_ACCESS_ARRAY;
+   //     DILDBG_ << " VECT ATTR : " << it->name;
+
+    }
+    if ((eletype == chaos::DataType::TYPE_BYTEARRAY) || eletype == chaos::DataType::TYPE_STRING|| eletype == chaos::DataType::TYPE_BOOLEAN)
+    {
+        if (ptr != it->buffer)
+        {
+            memcpy(it->buffer, ptr, it->len);
+        }
+        return it->len;
+
+    }
+    while (totsize < it->len)
+    {
+        switch (eletype)
+        {
+        case chaos::DataType::TYPE_INT32:
+            if (it->lbe)
+            {
+                *((int32_t *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                             chaos::common::utility::big_endian, int32_t>(*((int32_t *)ptr + elen));
+            }
+            else
+            {
+                *((int32_t *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                             chaos::common::utility::little_endian, int32_t>(*((int32_t *)ptr + elen));
+            }
+            elen++;
+            totsize += sizeof(int32_t);
+            break;
+        case chaos::DataType::TYPE_INT64:
+            if (it->lbe)
+            {
+                *((int64_t *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                             chaos::common::utility::big_endian, int64_t>(*((int64_t *)ptr + elen));
+            }
+            else
+            {
+                *((int64_t *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                             chaos::common::utility::little_endian, int64_t>(*((int64_t *)ptr + elen));
+            }
+            elen++;
+            totsize += sizeof(int64_t);
+            break;
+       
+        case chaos::DataType::TYPE_DOUBLE:
+            if (it->lbe)
+            {
+                *((double *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                            chaos::common::utility::big_endian, double>(*((double *)ptr + elen));
+            }
+            else
+            {
+                *((double *)it->buffer + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                            chaos::common::utility::little_endian, double>(*((double *)ptr + elen));
+            }
+            elen++;
+            totsize += sizeof(double);
+
+            break;
+
+        default:
+            DILERR_ << " UNSUPPORTED TYPE FOR : " << it->name;
+
+            return 0;
+        }
+    }
+    return totsize;
+}
+
 int copy(void *ptr, const AttributeOffLen *it)
 {
     bool vector = false;
@@ -91,11 +173,12 @@ int copy(void *ptr, const AttributeOffLen *it)
     int totsize = 0;
     int elen = 0;
     eletype=it->type;
-    if (eletype & DataType::TYPE_ACCESS_ARRAY)
+    int att=(int)DataType::TYPE_ACCESS_ARRAY;
+    if (eletype & att)
     {
         vector = true;
-        eletype -= DataType::TYPE_ACCESS_ARRAY;
-        DILDBG_ << " VECT ATTR : " << it->name;
+        eletype &= ~DataType::TYPE_ACCESS_ARRAY;
+      //  DILDBG_ << " VECT ATTR : " << it->name;
 
     }
     if ((eletype == chaos::DataType::TYPE_BYTEARRAY) || eletype == chaos::DataType::TYPE_STRING|| eletype == chaos::DataType::TYPE_BOOLEAN)

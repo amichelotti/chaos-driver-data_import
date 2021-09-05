@@ -1,9 +1,9 @@
 /*
  *	DataImportDriverInterface.cpp
- *	!CHOAS
- *	Created by Bisegni Claudio.
+ *	!CHAOS
+ *	Created by Andrea Michelotti
  *
- *    	Copyright 2015 INFN, National Institute of Nuclear Physics
+ *    	Copyright 2020 INFN, National Institute of Nuclear Physics
  *
  *    	Licensed under the Apache License, Version 2.0 (the "License");
  *    	you may not use this file except in compliance with the License.
@@ -23,7 +23,7 @@
 #define DIDILAPP_	INFO_LOG(DataImportDriverInterface)
 #define DIDILDBG_	DBG_LOG(DataImportDriverInterface)
 #define DIDILERR_	ERR_LOG(DataImportDriverInterface)
-
+using namespace driver::data_import;
 DataImportDriverInterface::DataImportDriverInterface(chaos::cu::driver_manager::driver::DriverAccessor*_accessor):
 accessor(_accessor){
     assert (_accessor);

@@ -34,6 +34,8 @@ typedef std::vector<AttributeOffLen *>::const_iterator AttributeOffLenCIterator;
 AttributeOffLenVec json2Attribute(const Json::Value&);
 
 int copy(void*ptr,const AttributeOffLen*v);
+int copy(AttributeOffLen*v,const char*ptr );
+
 AttributeOffLenVec json2Attribute(const std::string &jsonin);
 chaos::common::data::CDWUniquePtr attribute2CDW(const AttributeOffLenVec& attrs );
 int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute_type, int&size);

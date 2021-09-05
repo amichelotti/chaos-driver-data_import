@@ -18,45 +18,50 @@
  *    	limitations under the License.
  */
 
-
 #ifndef __data_import__FilePosixDataImporterDriver__
 #define __data_import__FilePosixDataImporterDriver__
 
 #include <driver/data-import/core/AbstractDataImportDriver.h>
 
-#include <chaos/cu_toolkit/driver_manager/driver/AbstractDriverPlugin.h>
 #include <chaos/common/data/DatasetDB.h>
+#include <chaos/cu_toolkit/driver_manager/driver/AbstractDriverPlugin.h>
 
 #include <string>
 
 #include <boost/functional/hash.hpp>
-DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(FilePosixDataImporterDriver)
 /*
  driver definition
  */
-class FilePosixDataImporterDriver:
-public AbstractDataImportDriver {
+DEFINE_CU_DRIVER_DEFINITION_PROTOTYPE(FilePosixDataImporterDriver)
 
-    char separator[2];
-    std::string fileName;
-    char*buf,*pnt;
-    int size;
-    std::size_t last_hash,current_hash;
-    bool allLines; // reads from begain or tail
+namespace driver {
 
-protected:
-    bool timeDependentName;
-    /*!
+namespace data_import {
+
+class FilePosixDataImporterDriver : public AbstractDataImportDriver {
+  char        separator[2];
+  std::string fileName;
+  char *      buf, *pnt;
+  int         size;
+  std::size_t last_hash, current_hash;
+  bool        allLines;  // reads from begain or tail
+
+ protected:
+  bool timeDependentName;
+  /*!
      "server_url":["host:port",...]
      "data_key":memcached string key
      "data_pack_len":the lenght of the intere datapack to read
      */
-    void driverInit(const char *initParameter) throw(chaos::CException);
-    void driverDeinit() throw(chaos::CException);
-    int  fetchData(void *buffer, unsigned int buffer_len,const std::string key="");
-    int readDataOffset(void* data_ptr, const std::string &key, uint32_t offset, uint32_t lenght);
-public:
-    FilePosixDataImporterDriver();
-    ~FilePosixDataImporterDriver();
+  void driverInit(const char *initParameter) throw(chaos::CException);
+  void driverDeinit() throw(chaos::CException);
+  int  fetchData(void *buffer, unsigned int buffer_len, const std::string key = "");
+  int  readDataOffset(void *data_ptr, const std::string &key, uint32_t offset, uint32_t lenght);
+
+ public:
+  FilePosixDataImporterDriver();
+  ~FilePosixDataImporterDriver();
 };
+}  // namespace data_import
+}  // namespace driver
 #endif /* defined(__DataImport__FilePosixDataImporterDriver__) */

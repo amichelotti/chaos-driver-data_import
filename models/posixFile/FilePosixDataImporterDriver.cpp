@@ -41,13 +41,13 @@ FilePosixDataImporterDriverLERR_ << memcached_strerror(mc_client, x);\
 
 #include <boost/lexical_cast.hpp>
 #include <boost/algorithm/string.hpp>
-
+using namespace ::driver::data_import;
 //GET_PLUGIN_CLASS_DEFINITION
 //we need only to define the driver because we don't are makeing a plugin
-OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(FilePosixDataImporterDriver, 1.0.0, FilePosixDataImporterDriver)
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, server_url [array of strings like host:port])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data_key [string])
-REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(FilePosixDataImporterDriver, data_pack_len [uint32_t])
+OPEN_CU_DRIVER_PLUGIN_CLASS_DEFINITION(FilePosixDataImporterDriver, 1.0.0, ::driver::data_import::FilePosixDataImporterDriver)
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, server_url [array of strings like host:port])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, data_key [string])
+REGISTER_CU_DRIVER_PLUGIN_CLASS_INIT_ATTRIBUTE(::driver::data_import::FilePosixDataImporterDriver, data_pack_len [uint32_t])
 CLOSE_CU_DRIVER_PLUGIN_CLASS_DEFINITION
 
 /*
@@ -247,11 +247,14 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 			buf = (char*)realloc(buf,lastLine.size()+1);
 			strncpy(buf,lastLine.c_str(),lastLine.size()+1);
 			buf[lastLine.size()]=0;
+			size=lastLine.size()+1;
 			DPRINT("tail:'%s'",lastLine.c_str());
 
 		}
 	    last_hash= current_hash;
-	    current_hash =::common::misc::data::simpleHash(buf,size);
+		if(buf && (size >0)){
+	    	current_hash =::common::misc::data::simpleHash(buf,size);
+		}
 	    
 	    DPRINT("read tail %d bytes, hash 0x%lx, last_hash 0x%lx",size,current_hash,last_hash);
 	    
