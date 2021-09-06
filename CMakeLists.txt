@@ -23,7 +23,7 @@ ELSE()
   ADD_LIBRARY(${PROJECT_NAME} SHARED ${data_import_src})
 ENDIF()
 
-TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common chaos_driver_misc common_misc_data ${FrameworkLib} ${lib})
+TARGET_LINK_LIBRARIES(${PROJECT_NAME} chaos_cutoolkit chaos_common common_misc_data ${FrameworkLib} ${lib})
 
 #INSTALL_TARGETS(/lib ${PROJECT_NAME})
 INSTALL(TARGETS ${PROJECT_NAME}
