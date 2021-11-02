@@ -17,6 +17,8 @@ struct AttributeOffLen
     std::string keybind;
     std::string desc;
     chaos::DataType::DataType type;
+    chaos::DataType::DataType original_type;
+
     uint32_t offset;
     uint32_t len;
     double factor; //conversion factor if any

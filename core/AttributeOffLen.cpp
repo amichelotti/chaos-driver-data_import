@@ -388,6 +388,8 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
         const Json::Value &json_attribute_name = (*it)["name"];
         const Json::Value &json_attribute_description = (*it)["description"];
         const Json::Value &json_attribute_type = (*it)["type"];
+        const Json::Value &json_attribute_original_type = (*it)["orig_type"];
+
         const Json::Value &json_attribute_offset = (*it)["offset"];
         const Json::Value &json_attribute_len = (*it)["len"];
         const Json::Value &json_attribute_lbe = (*it)["lbe"];
@@ -434,7 +436,12 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
         {
             LOG_AND_THROW(-12, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_TYPE)
         }
-
+        chaos::DataType::DataType orig_attribute_type = attribute_type;
+        if (!json_attribute_original_type.isNull()){
+            decodeType(json_attribute_original_type.asString(), orig_attribute_type, siz);
+        
+            //LOG_AND_THROW(-12, ERROR_MSG_TYPE_JSON_DATASET_ATTRIBUTE_TYPE)
+        }
         //add the attribute and in case it is string or binary we need to check
         //the max size attribute
         AttributeOffLen *vec = new AttributeOffLen();
@@ -449,6 +456,7 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
         vec->index = idx++;
         vec->name = json_attribute_name.asString();
         vec->type = attribute_type;
+        vec->original_type=orig_attribute_type;
         vec->offset = json_attribute_offset.asInt();
         if (json_attribute_factor.isNull() || !json_attribute_factor.isDouble())
         {
