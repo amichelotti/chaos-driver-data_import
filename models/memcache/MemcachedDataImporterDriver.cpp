@@ -228,6 +228,7 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
                                            unsigned int buffer_len,const std::string key) {
   CHAOS_ASSERT(mc_client)
   int err = 0;
+  int last_err=0;
   int key_read=0;
   uint32_t flags = 0;
   memcached_return_t rc;
@@ -246,9 +247,10 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
     // check if we have something
     if ((value != NULL)&&(rc==MEMCACHED_SUCCESS)) {
       if (value_length > buffer_len) {
-        err = -1;
+        err = driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_BUFFER;
         MemcachedDataImporterDriverLERR_ << "The size "<<value_length<<" of key " << *it
                                          << " doesn't fit into buffer size:"<<buffer_len;
+        last_err=err;
       } else {
         char *pnt = ((char *)buffer) + tot_size;
         key2off[*it] = tot_size;
@@ -264,17 +266,19 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
       err=0;
     } else {
       MemcachedDataImporterDriverLERR_ << "Error retriving data from key "
-                                       << *it<<" ret:"<<rc;
-      err = -2;
+                                       << *it<<" memcod ret:"<<rc;
+      err = driver::data_import::DATA_IMPORT_CANNOT_ACCESS_DATA;
+      last_err=err;
+
     }
-     data_results[*it]=(err==0);
+     data_results[*it]=err;
   }
-  return 0;
+  return last_err;
 }
 
 int MemcachedDataImporterDriver::readDataOffset(AttributeOffLen*v){
     copy(v,(buffer_data_block+key2off[v->keybind]+v->offset));
-    return (data_results[v->keybind]==true)?0:1;
+    return data_results[v->keybind];
 
 
 }
@@ -284,13 +288,14 @@ int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
                                                 uint32_t lenght) {
   int err = 0;
   CHAOS_ASSERT(buffer_data_block)
-  if ((offset + lenght) > buffer_len)
-    return -1;
+  if ((offset + lenght) > buffer_len){
+    return driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_KEY_BUFFER;
+  }
   // copy seletected portion of data
   if (key == "") {
     std::memcpy(data_ptr, (buffer_data_block + offset), lenght);
   } else {
     std::memcpy(data_ptr, (buffer_data_block + key2off[key] + offset), lenght);
   }
-  return (data_results[key]==true)?0:1;
+  return data_results[key];
 }
