@@ -126,7 +126,22 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
                                       DataType::Output);
                 break;
                 
-                
+            case DataType::TYPE_VECTOR_BOOL:
+                addBinaryAttributeAsSubtypeToDataSet((*i)->name, (*i)->desc, chaos::DataType::SUB_TYPE_BOOLEAN, (*i)->len, DataType::Output);
+                break;
+            case DataType::TYPE_VECTOR_INT32:
+                addBinaryAttributeAsSubtypeToDataSet((*i)->name, (*i)->desc, chaos::DataType::SUB_TYPE_INT32, (*i)->len, DataType::Output);
+
+            break;
+            case DataType::TYPE_VECTOR_INT64:
+                addBinaryAttributeAsSubtypeToDataSet((*i)->name, (*i)->desc, chaos::DataType::SUB_TYPE_INT64, (*i)->len, DataType::Output);
+
+            break;
+            case DataType::TYPE_VECTOR_DOUBLE:
+                addBinaryAttributeAsSubtypeToDataSet((*i)->name, (*i)->desc, chaos::DataType::SUB_TYPE_DOUBLE, (*i)->len, DataType::Output);
+
+            break;
+
             default:
                 addAttributeToDataSet((*i)->name,
                                       (*i)->desc,
@@ -175,7 +190,7 @@ void DataImport::unitRun() throw(chaos::CException) {
     int err = 0;
     bool changed=false;
     //fetch new datablock
-    DILDBG_<<" Fetch from driver";
+   // DILDBG_<<" Fetch from driver";
 	setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelClear);
 
     if((err = driver_interface->fetchNewDatablock())) {
@@ -186,9 +201,8 @@ void DataImport::unitRun() throw(chaos::CException) {
 	    return;
       }
        DILERR_ << "fetching NO datablock return:" << err;
-       	setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+        setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
 
-       return;
     }
 
 
@@ -209,37 +223,58 @@ void DataImport::unitRun() throw(chaos::CException) {
                 changed=true;
                 memcpy((*it)->old_buffer,(*it)->buffer,(*it)->len);
             }
-            
+            bool  isVector       = ((unsigned)(*it)->type) & ((unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+            uint32_t tt       = ((unsigned)(*it)->type) & (~(unsigned)chaos::DataType::TYPE_ACCESS_ARRAY);
+            uint32_t size=(*it)->len;
+            float factor=1.0;
+            if((*it)->factor){
+                factor=(*it)->factor;
+            }
+
             //apply some filter if we need it
-            switch((*it)->type) {
+            switch(tt) {
                 case DataType::TYPE_INT32:
                     if((*it)->original_type==(*it)->type){
-                        if((*it)->lbe){
-                            *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                            chaos::common::utility::big_endian, int32_t>(*((int32_t*)(*it)->buffer));
-                        }else{
-                            *((int32_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                            chaos::common::utility::little_endian, int32_t>(*((int32_t*)(*it)->buffer));
+                        int32_t *dest_buffer=(int32_t*)(*it)->buffer;
+                        if(isVector==false){
+                            size=sizeof(int32_t);
                         }
-                        if((*it)->factor){
-                            *((int32_t*)(*it)->buffer) =  *((int32_t*)(*it)->buffer) *(*it)->factor;
+                        for(int cnt=0;cnt<size/sizeof(int32_t);cnt++){
+                            if((*it)->lbe){
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::big_endian, int32_t>(dest_buffer[cnt])*factor;
+                            }else{
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::little_endian, int32_t>(dest_buffer[cnt])*factor;
+                            }
+                            DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+
                         }
                     } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
                         *((int32_t*)(*it)->buffer) = atoi(tmp.c_str());
+                        DILDBG_<<" reading INT32(string) attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
+
                     }
-                    DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
                    
                 break;
                 case DataType::TYPE_INT64:
                  if((*it)->original_type==(*it)->type){
-                    if((*it)->lbe){
-                        *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                        chaos::common::utility::big_endian, int64_t>(*((int64_t*)(*it)->buffer));
-                    }else{
-                        *((int64_t*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                        chaos::common::utility::little_endian, int64_t>(*((int64_t*)(*it)->buffer));
-                    }
+                    int64_t *dest_buffer=(int64_t*)(*it)->buffer;
+                        if(isVector==false){
+                            size=sizeof(int64_t);
+                        }
+                        for(int cnt=0;cnt<size/sizeof(int64_t);cnt++){
+                            if((*it)->lbe){
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::big_endian, int64_t>(dest_buffer[cnt])*factor;
+                            }else{
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::little_endian, int64_t>(dest_buffer[cnt])*factor;
+                            }
+                            DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+
+                        }
                  } else  if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
                         *((int64_t*)(*it)->buffer) = atoll(tmp.c_str());
@@ -249,16 +284,21 @@ void DataImport::unitRun() throw(chaos::CException) {
 
                 case DataType::TYPE_DOUBLE:
                 if((*it)->original_type==(*it)->type){
-                    if((*it)->lbe){
-                        *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                        chaos::common::utility::big_endian, double>(*((double*)(*it)->buffer));
-                    }else{
-                        *((double*)(*it)->buffer) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
-                        chaos::common::utility::little_endian, double>(*((double*)(*it)->buffer));
-                    }
-                    if((*it)->factor){
-                         *((double*)(*it)->buffer)= *((double*)(*it)->buffer)*(*it)->factor;
-                    }
+                    double *dest_buffer=(double*)(*it)->buffer;
+                        if(isVector==false){
+                            size=sizeof(double);
+                        }
+                        for(int cnt=0;cnt<size/sizeof(double);cnt++){
+                            if((*it)->lbe){
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::big_endian, double>(dest_buffer[cnt])*factor;
+                            }else{
+                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                chaos::common::utility::little_endian, double>(dest_buffer[cnt])*factor;
+                            }
+                            DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+
+                        }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
                         *((double*)(*it)->buffer) = atof(tmp.c_str());
