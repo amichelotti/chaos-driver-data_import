@@ -22,7 +22,7 @@
 #include <driver/data-import/core/AbstractDataImportDriver.h>
 #include <chaos/cu_toolkit/control_manager/ControlUnitTypes.h>
 #include <chaos/common/utility/endianess.h>
-
+#include <cmath>
 #include <json/json.h>
 
 using namespace chaos;
@@ -114,6 +114,7 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     int idx = 0;
     for(driver::data_import::AttributeOffLenIterator i =attribute_off_len_vec.begin();i!=attribute_off_len_vec.end();i++){
             addStateVariable(StateVariableTypeAlarmCU, "fetching_key_of_"+(*i)->name,"Error fetching key");
+            addStateVariable(StateVariableTypeAlarmCU, "invalid_data_on_"+(*i)->name,"Invalid data");
 
             switch((*i)->type) {
             case DataType::TYPE_INT32:
@@ -211,6 +212,7 @@ void DataImport::unitRun() throw(chaos::CException) {
         it != attribute_off_len_vec.end();
         it++) {
         setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelClear);
+        setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelClear);
 
         //
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
@@ -290,18 +292,30 @@ void DataImport::unitRun() throw(chaos::CException) {
                         }
                         for(int cnt=0;cnt<size/sizeof(double);cnt++){
                             if((*it)->lbe){
-                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                double d=chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::big_endian, double>(dest_buffer[cnt])*factor;
+                                if(!std::isfinite(d)){
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                                }
+                                dest_buffer[cnt] = d;
                             }else{
-                                dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                double d= chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::little_endian, double>(dest_buffer[cnt])*factor;
+                                if(!std::isfinite(d)){
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                                }
+                                dest_buffer[cnt]  =d;
                             }
                             DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
 
                         }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
-                        *((double*)(*it)->buffer) = atof(tmp.c_str());
+                        double d=atof(tmp.c_str());
+                          if(!std::isfinite(d)){
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                            }
+                        *((double*)(*it)->buffer) =d ;
                     }
                     DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
 
