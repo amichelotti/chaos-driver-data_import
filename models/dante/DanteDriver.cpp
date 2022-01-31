@@ -322,7 +322,7 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
           DanteDriverLDBG_ << " DOUBLE DUMP  :" << std::hex<<*(uint64_t*)k->second->buffer<<" dbl:"<< chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                                                             chaos::common::utility::big_endian, double>(*((double *)k->second->buffer));;
         }*/
-        res->appendArray(k->first, ele_type, (const char *)k->second->buffer, k->second->len);
+        res->append(k->first, ele_type, (const char *)k->second->buffer, k->second->len);
         // DanteDriverLDBG_ << " VECTOR :" << k->first<<res->getJSONString();
 
       } else if (ele_type == chaos::DataType::TYPE_BOOLEAN) {
