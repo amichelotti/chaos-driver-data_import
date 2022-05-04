@@ -259,7 +259,9 @@ int FilePosixDataImporterDriver::fetchData(void *buffer, unsigned int buffer_len
 	    DPRINT("read tail %d bytes, hash 0x%lx, last_hash 0x%lx",size,current_hash,last_hash);
 	    
 	  } else {
-	    ERR("file is empty %d",size);
+	    ERR("file is empty %d, key:%s",size,key.c_str());
+		file.close();
+
 	    return DATA_IMPORT_NO_DATA;
 	  }
 	  
@@ -297,7 +299,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 
 		}
 		if(pnt==NULL){
-			ERR("no other parameters")
+			ERR("no other parameters, searching %s off:%d len %d",key.c_str(),offset,lenght)
 			return DATA_IMPORT_DECODE_ERROR;
 		}
 		DPRINT("get token \"%s\"",pnt);
@@ -334,7 +336,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 			}
 		}
 	}
-	ERR("error parsing");
+	ERR("error parsing, searching %s off:%d len %d",key.c_str(),offset,lenght);
 	return DATA_IMPORT_DECODE_ERROR;
 }
 
