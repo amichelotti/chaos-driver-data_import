@@ -99,6 +99,8 @@ void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
+    addStateVariable(StateVariableTypeAlarmCU, "fetching_data_empty","data empty block");
+
     addStateVariable(StateVariableTypeAlarmCU, "fetching_data_block","Error fetching data block");
 
     //parse json string
@@ -201,6 +203,21 @@ void DataImport::unitRun() throw(chaos::CException) {
 
 	    return;
       }
+    
+      if(err==DATA_IMPORT_NO_DATA){
+          int retry=3;
+          do{
+            DILERR_ << "fetching NO DATA:" << err<< " retrying.."<<retry;
+            usleep(10000);
+          } while((err = driver_interface->fetchNewDatablock())&& (retry--));
+
+          if(retry<=0){
+            setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_empty", chaos::common::alarm::MultiSeverityAlarmLevelWarning);
+
+	        return;
+          }
+
+      }
        DILERR_ << "fetching NO datablock return:" << err;
         setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_data_block", chaos::common::alarm::MultiSeverityAlarmLevelHigh);
 
@@ -295,14 +312,14 @@ void DataImport::unitRun() throw(chaos::CException) {
                                 double d=chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::big_endian, double>(dest_buffer[cnt])*factor;
                                 if(!std::isfinite(d)){
-                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
                                 }
                                 dest_buffer[cnt] = d;
                             }else{
                                 double d= chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::little_endian, double>(dest_buffer[cnt])*factor;
                                 if(!std::isfinite(d)){
-                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
                                 }
                                 dest_buffer[cnt]  =d;
                             }
@@ -313,7 +330,7 @@ void DataImport::unitRun() throw(chaos::CException) {
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
                         double d=atof(tmp.c_str());
                           if(!std::isfinite(d)){
-                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+                                    setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
                             }
                         *((double*)(*it)->buffer) =d ;
                     }
