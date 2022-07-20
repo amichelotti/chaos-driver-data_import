@@ -13,5 +13,7 @@ ELSE()
 
 ENDIF()
 add_subdirectory(posixFile)
+add_subdirectory(modbusDevice)
+
 
 SET(DRIVERS_LIB ${DRIVERS_LIB} PARENT_SCOPE)

@@ -1,7 +1,7 @@
 /*
  *	MemcachedDataImporterDriver.cpp
  *	!CHAOS
- *	Created by Bisegni Claudio.
+ *	Created by Bisegni Claudio, Andrea Michelotti
  *
  *    	Copyright 2012 INFN, National Institute of Nuclear Physics
  *
