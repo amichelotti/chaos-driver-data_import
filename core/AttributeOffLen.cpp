@@ -58,6 +58,10 @@ int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute
     {
         attribute_type = DataType::TYPE_DOUBLE;
         size = sizeof(double);
+    } else if (str_type.find("float") != std::string::npos)
+    {
+        attribute_type = DataType::TYPE_FLOAT;
+        size = sizeof(float);
     }
     else if (str_type.find("string") != std::string::npos)
     {
@@ -238,7 +242,21 @@ int copy(void *ptr, const AttributeOffLen *it)
             totsize += sizeof(double);
 
             break;
+            case chaos::DataType::TYPE_FLOAT:
+            if (it->lbe)
+            {
+                *((double *)ptr + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                            chaos::common::utility::big_endian, float>(*((float *)it->buffer + elen));
+            }
+            else
+            {
+                *((double *)ptr + elen) = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
+                                                                            chaos::common::utility::little_endian, float>(*((float *)it->buffer + elen));
+            }
+            elen++;
+            totsize += sizeof(float);
 
+            break;
         default:
             DILERR_ << " UNSUPPORTED TYPE FOR : " << it->name;
 
@@ -311,6 +329,20 @@ chaos::common::data::CDWUniquePtr attribute2CDW(const AttributeOffLenVec &attrib
             else
             {
                 ser->addDoubleValue("value", *((double *)(*i)->buffer));
+            }
+            break;
+        case DataType::TYPE_FLOAT:
+            if (vector)
+            {
+                for (int cnt = 0; cnt < (*i)->len / sizeof(float); cnt++)
+                {
+                    ser->appendDoubleToArray(*((float *)(*i)->buffer + cnt));
+                }
+                ser->finalizeArrayForKey("value");
+            }
+            else
+            {
+                ser->addDoubleValue("value", *((float *)(*i)->buffer));
             }
             break;
         case DataType::TYPE_BOOLEAN:
