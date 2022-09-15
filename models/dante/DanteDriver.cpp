@@ -91,10 +91,9 @@ void DanteDriver::driverInit(const char *initParameter) throw(
   // fetch value from json document
   const Json::Value &json_server_urls = json_parameter["dante_server_url"];
   // check madatory data
-  if (json_server_urls.isNull()) {
-    throw chaos::CException(-2, "dante_server_url is mandatory", __PRETTY_FUNCTION__);
+  if (!json_server_urls.isNull()) {
+      danteRestServer                 = json_server_urls.asString();
   }
-  danteRestServer                 = json_server_urls.asString();
   const Json::Value &json_element = json_parameter["dante_element"];
   // check madatory data
   if (json_element.isNull()) {
