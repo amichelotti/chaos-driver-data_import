@@ -47,7 +47,7 @@ class DanteDriver:public MemcachedDataImporterDriver {
     
     std::string danteRestServer,username,password;
     std::string danteElement;
-    chaos_crest_handle_t crest_handle;
+    //chaos_crest_handle_t crest_handle;
     //chaos::common::data::CDWUniquePtr dataset;
     ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
     ::driver::data_import::AttributeOffLenVec static_attribute_off_len_vec;
