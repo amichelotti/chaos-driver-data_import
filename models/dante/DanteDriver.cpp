@@ -59,8 +59,7 @@ DanteDriver::~DanteDriver() {
  * 
  * @param initParameter a JSON describing memcached server, dante rest server, and dataset to retrieve.
  */
-void DanteDriver::driverInit(const char *initParameter) throw(
-    chaos::CException) {
+void DanteDriver::driverInit(const char *initParameter)  {
   MemcachedDataImporterDriver::driverInit(initParameter);
   // parse json string
   std::string  json_string(initParameter);
@@ -173,7 +172,7 @@ int DanteDriver::setDrvProperty(const std::string &key, const std::string &value
   return -1;
 }
 
-void DanteDriver::driverDeinit() throw(chaos::CException) {
+void DanteDriver::driverDeinit()  {
   for (::driver::data_import::AttributeOffLenIterator i = attribute_off_len_vec.begin(); i != attribute_off_len_vec.end(); i++) {
     free((*i)->buffer);
     free((*i)->old_buffer);

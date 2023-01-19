@@ -66,8 +66,8 @@ public:
         DYNAMIC,
         STATIC
     };
- void driverInit(const char *initParameter) throw(chaos::CException);
-    void driverDeinit() throw(chaos::CException);
+ void driverInit(const char *initParameter) ;
+    void driverDeinit() ;
    
     /**
      * @brief makes a rest post calling the function and giving the JSON parameters

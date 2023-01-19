@@ -94,7 +94,7 @@ DataImport::~DataImport() {
  "lbe":true(little)-false(big)
  }]
  }*/
-void DataImport::unitDefineActionAndDataset() throw(chaos::CException) {
+void DataImport::unitDefineActionAndDataset()  {
     //insert your definition code here
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
@@ -165,7 +165,7 @@ void DataImport::unitDefineCustomAttribute() {
 }
 
 //!Initialize the Custom Control Unit
-void DataImport::unitInit() throw(chaos::CException) {
+void DataImport::unitInit()  {
     
     driver_interface = new DataImportDriverInterface(getAccessoInstanceByIndex(0));
     
@@ -184,12 +184,12 @@ void DataImport::unitInit() throw(chaos::CException) {
 }
 
 //!Execute the work, this is called with a determinated delay, it must be as fast as possible
-void DataImport::unitStart() throw(chaos::CException) {
+void DataImport::unitStart()  {
     
 }
 
 //!Execute the Control Unit work
-void DataImport::unitRun() throw(chaos::CException) {
+void DataImport::unitRun()  {
     int err = 0;
     bool changed=false;
     //fetch new datablock
@@ -413,11 +413,11 @@ void DataImport::unitRun() throw(chaos::CException) {
 }
 
 //!Execute the Control Unit work
-void DataImport::unitStop() throw(chaos::CException) {
+void DataImport::unitStop()  {
     
 }
 
 //!Deinit the Control Unit
-void DataImport::unitDeinit() throw(chaos::CException) {
+void DataImport::unitDeinit()  {
     if(driver_interface) delete(driver_interface);
 }

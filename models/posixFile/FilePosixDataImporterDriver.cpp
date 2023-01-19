@@ -119,7 +119,7 @@ FilePosixDataImporterDriver::~FilePosixDataImporterDriver() {
    driverDeinit();
 }
 
-void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(chaos::CException) {
+void FilePosixDataImporterDriver::driverInit(const char *initParameter)  {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
@@ -171,7 +171,7 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
 
 }
 
-void FilePosixDataImporterDriver::driverDeinit() throw(chaos::CException) {
+void FilePosixDataImporterDriver::driverDeinit()  {
 	if(buf){
 		free(buf);
 		buf=NULL;

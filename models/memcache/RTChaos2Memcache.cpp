@@ -59,7 +59,7 @@ RTChaos2Memcache::~RTChaos2Memcache() {
 
 }
 
-void RTChaos2Memcache::unitDefineActionAndDataset() throw(chaos::CException) {
+void RTChaos2Memcache::unitDefineActionAndDataset()  {
         DPRINT("Creating attributes");
 
      addAttributeToDataSet("memcacheurl",
@@ -80,7 +80,7 @@ void RTChaos2Memcache::unitDefineActionAndDataset() throw(chaos::CException) {
 
 
 //!Initialize the Custom Control Unit
-void RTChaos2Memcache::unitInit() throw(chaos::CException) {
+void RTChaos2Memcache::unitInit()  {
     memcached_return_t              mc_result = MEMCACHED_SUCCESS;
     DPRINT("INIT");
 
@@ -138,7 +138,7 @@ void RTChaos2Memcache::unitInit() throw(chaos::CException) {
     
 }
 
-void RTChaos2Memcache::unitRun() throw(chaos::CException) {
+void RTChaos2Memcache::unitRun()  {
     int off=0;
     DPRINT("RUN");
      for (std::vector<ChaosDatasetAttribute*>::iterator i=rattrs.begin();i!=rattrs.end();i++){
@@ -162,16 +162,16 @@ void RTChaos2Memcache::unitRun() throw(chaos::CException) {
   
 }
 //!Execute the work, this is called with a determinated delay, it must be as fast as possible
-void RTChaos2Memcache::unitStart() throw(chaos::CException) {
+void RTChaos2Memcache::unitStart()  {
  
 }
 //!Execute the Control Unit work
-void RTChaos2Memcache::unitStop() throw(chaos::CException) {
+void RTChaos2Memcache::unitStop()  {
 
 }
 
 //!Deinit the Control Unit
-void RTChaos2Memcache::unitDeinit() throw(chaos::CException) {
+void RTChaos2Memcache::unitDeinit()  {
        if(mc_client){
         memcached_free(mc_client);
         mc_client = NULL;

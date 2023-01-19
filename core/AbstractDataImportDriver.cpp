@@ -49,12 +49,12 @@ AbstractDataImportDriver::~AbstractDataImportDriver() {
     FREE_MALLOC(buffer_data_block)
 }
 
-void AbstractDataImportDriver::driverInit(const char *initParameter) throw(chaos::CException) {
+void AbstractDataImportDriver::driverInit(const char *initParameter)  {
     ADIDLAPP_ << "Init driver";
     
 }
 
-void AbstractDataImportDriver::driverDeinit() throw(chaos::CException) {
+void AbstractDataImportDriver::driverDeinit()  {
     ADIDLAPP_ << "Deinit driver";
     FREE_MALLOC(buffer_data_block)
 }

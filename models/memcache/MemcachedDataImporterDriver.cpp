@@ -55,8 +55,7 @@ MemcachedDataImporterDriver::~MemcachedDataImporterDriver() {
   }
 }
 
-void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(
-    chaos::CException) {
+void MemcachedDataImporterDriver::driverInit(const char *initParameter)  {
   Json::Value json_parameter;
   Json::StyledWriter json_writer;
   Json::Reader json_reader;
@@ -216,7 +215,7 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(
        }
 }
 
-void MemcachedDataImporterDriver::driverDeinit() throw(chaos::CException) {
+void MemcachedDataImporterDriver::driverDeinit()  {
   if (mc_client) {
     memcached_free(mc_client);
     mc_client = NULL;
