@@ -115,10 +115,30 @@ void DataImport::unitDefineActionAndDataset()  {
     
     int idx = 0;
     for(driver::data_import::AttributeOffLenIterator i =attribute_off_len_vec.begin();i!=attribute_off_len_vec.end();i++){
+            
             addStateVariable(StateVariableTypeAlarmCU, "fetching_key_of_"+(*i)->name,"Error fetching key");
             addStateVariable(StateVariableTypeAlarmCU, "invalid_data_on_"+(*i)->name,"Invalid data");
 
             switch((*i)->type) {
+            case DataType::TYPE_JSON:{
+                if((*i)->jsond.size()==0){
+                    throw chaos::CException(-1, "Empty JSON specification in 'json' key", __PRETTY_FUNCTION__);
+
+                }
+                try {
+                   chaos::common::data::CDataWrapper param;
+                   param.setSerializedJsonData((*i)->jsond.c_str());
+                  DEBUG_CODE(DILDBG_ << "Adding dataset" <<param.getJSONString());
+
+                   addAttributesToDataSet(param); // add parameters from JSON
+                   
+
+                } catch(...){
+                    throw chaos::CException(-2, "No valid JSON in 'json':"+(*i)->jsond, __PRETTY_FUNCTION__);
+
+                }
+            }
+            break;
             case DataType::TYPE_INT32:
             case DataType::TYPE_INT64:
             case DataType::TYPE_DOUBLE:
@@ -174,10 +194,14 @@ void DataImport::unitInit()  {
         it != attribute_off_len_vec.end();
         it++) {
         //get hte base address of the value form the cache
-        DILAPP_ "Get pointer from cache for attribute " << (*it)->name;
-        (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
-        if((*it)->buffer == NULL) {
-            throw chaos::CException(-1, "Error retrieving pointer", __PRETTY_FUNCTION__);
+        if(((*it)->type!=DataType::TYPE_JSON)){
+            DILAPP_ "Get pointer from cache for attribute " << (*it)->name;
+            (*it)->buffer = getAttributeCache()->getRWPtr<void*>(chaos::common::data::cache::DOMAIN_OUTPUT, (*it)->name);
+            if((*it)->buffer == NULL) {
+                throw chaos::CException(-1, "Error retrieving pointer", __PRETTY_FUNCTION__);
+            }
+        } else {
+            (*it)->buffer = malloc((*it)->len);
         }
         
     }
@@ -232,6 +256,9 @@ void DataImport::unitRun()  {
         it++) {
 
         //
+        if((*it)->type== DataType::TYPE_JSON){
+            memset((*it)->buffer,0,(*it)->len);
+        }
         if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" driver with error " << err;
             setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
@@ -254,6 +281,32 @@ void DataImport::unitRun()  {
 
             //apply some filter if we need it
             switch(tt) {
+                case DataType::TYPE_JSON:{
+                    const char* json=(const char*)(*it)->buffer;
+                    if(json==NULL){
+                        DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" VALUE IS NULL";
+
+                        setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+ 
+                    } else {
+                        try{
+                            chaos::common::data::CDataWrapper param;
+                            DILDBG_ << (*it)->name << " serializing "<<json;
+
+                            param.setSerializedJsonData(json);
+                            DILDBG_ << (*it)->name << " serialized "<<param.getJSONString();
+
+                            updateDataSet(param);
+
+                        } catch(...){
+                            DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" invalid JSON " << json;
+
+                            setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
+    
+                        }
+                    }
+                }
+                break;
                 case DataType::TYPE_INT32:
                     if((*it)->original_type==(*it)->type){
                         int32_t *dest_buffer=(int32_t*)(*it)->buffer;
@@ -419,5 +472,17 @@ void DataImport::unitStop()  {
 
 //!Deinit the Control Unit
 void DataImport::unitDeinit()  {
+    for(::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
+        it != attribute_off_len_vec.end();
+        it++) {
+        //get hte base address of the value form the cache
+        if(((*it)->type==DataType::TYPE_JSON)){
+            if((*it)->buffer){
+                free((*it)->buffer);
+            }
+           
+        }
+        
+    }
     if(driver_interface) delete(driver_interface);
 }

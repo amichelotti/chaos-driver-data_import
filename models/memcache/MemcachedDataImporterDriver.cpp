@@ -291,6 +291,11 @@ int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
     return driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_KEY_BUFFER;
   }
   // copy seletected portion of data
+  if(data_ptr==NULL){
+     MemcachedDataImporterDriverLERR_ << "No space allocated for "<< key;
+     return -1;
+                            
+  }
   if (key == "") {
     std::memcpy(data_ptr, (buffer_data_block + offset), lenght);
   } else {

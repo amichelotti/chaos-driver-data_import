@@ -68,6 +68,12 @@ int decodeType(const std::string &str_type, chaos::DataType::DataType &attribute
         attribute_type = DataType::TYPE_STRING;
         size = 256;
     }
+    else if (str_type.find("json") != std::string::npos)
+    {
+        attribute_type = DataType::TYPE_JSON;
+        size = 256;
+
+    }
     else if (str_type.find("binary") == 0)
     {
         attribute_type = DataType::TYPE_BYTEARRAY;
@@ -360,7 +366,7 @@ chaos::common::data::CDWUniquePtr attribute2CDW(const AttributeOffLenVec &attrib
             }
             break;
         case DataType::TYPE_STRING:
-        case DataType::TYPE_CLUSTER:
+        case DataType::TYPE_JSON:
             ser->addStringValue("value", ((const char *)(*i)->buffer));
             break;
         case DataType::TYPE_BYTEARRAY:
@@ -419,6 +425,8 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
 
         const Json::Value &json_attribute_name = (*it)["name"];
         const Json::Value &json_attribute_description = (*it)["description"];
+        const Json::Value &json_json = (*it)["json"];
+
         const Json::Value &json_attribute_type = (*it)["type"];
         const Json::Value &json_attribute_original_type = (*it)["orig_type"];
 
@@ -427,7 +435,7 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
         const Json::Value &json_attribute_lbe = (*it)["lbe"];
         const Json::Value &json_attribute_factor = (*it)["factor"];
         const Json::Value &key_bind = (*it)["keybind"];
-        std::string desc;
+        std::string desc,json;
         if (json_attribute_name.isNull())
         {
             LOG_AND_THROW(-3, ERROR_MSG_MANDATORY_JSON_DATASET_ATTRIBUTE_NAME)
@@ -439,6 +447,11 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
         if ((!json_attribute_description.isNull()) && json_attribute_description.isString())
         {
             desc = json_attribute_description.asString();
+        }
+        if ((!json_json.isNull()) && json_json.isString())
+        {
+            json = json_json.asString();
+            DILDBG_<<" JSON PARAM:"<<json;
         }
         if (json_attribute_type.isNull())
         {
@@ -483,8 +496,9 @@ AttributeOffLenVec json2Attribute(const Json::Value &json_parameter)
             vec->len = json_attribute_len.asInt();
         }
         vec->desc = desc;
+        vec->jsond=json;
 
-        //add the attribute slot intto the vector
+        //add the attribute slot into the vector
         vec->index = idx++;
         vec->name = json_attribute_name.asString();
         vec->type = attribute_type;
