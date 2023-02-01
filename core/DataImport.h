@@ -101,6 +101,7 @@ class DataImport : public chaos::cu::control_manager::RTAbstractControlUnit {
      The Control Unit will be deinitialized and disposed
      */
   void unitDeinit() ;
+  int incomingMessage(const std::string& key,  chaos::common::data::CDWUniquePtr& data);
 };
 }  // namespace data_import
 }  // namespace driver

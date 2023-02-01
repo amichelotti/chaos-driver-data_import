@@ -211,7 +211,7 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter)  {
   }
    for (std::vector<std::string>::iterator it = data_keys.begin();
        it != data_keys.end(); it++) {
-           data_results[*it]=false;
+           data_results[*it]=0;
        }
 }
 
@@ -263,14 +263,16 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
       free(value);
       key_read++;
       err=0;
+      data_results[*it]=value_length;
+
     } else {
       MemcachedDataImporterDriverLERR_ << "Error retriving data from key "
                                        << *it<<" memcod ret:"<<rc;
       err = driver::data_import::DATA_IMPORT_CANNOT_ACCESS_DATA;
       last_err=err;
+      data_results[*it]=err;
 
     }
-     data_results[*it]=err;
   }
   return last_err;
 }

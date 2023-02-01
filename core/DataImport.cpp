@@ -205,10 +205,18 @@ void DataImport::unitInit()  {
         }
         
     }
+
+}
+int DataImport::incomingMessage(const std::string& key,  chaos::common::data::CDWUniquePtr& data){
+    DILDBG_<<"packet from "<<key<<" :"<<data->getJSONString();
+    return 0;
 }
 
 //!Execute the work, this is called with a determinated delay, it must be as fast as possible
 void DataImport::unitStart()  {
+    //subscribe("AULA_TOUSHECK/TEMP/ZB_SENSOR_D0101");
+    //subscribe("AULA_TOUSHECK/TEMP/ZB_SENSOR_C0501");
+
     
 }
 
@@ -259,7 +267,7 @@ void DataImport::unitRun()  {
         if((*it)->type== DataType::TYPE_JSON){
             memset((*it)->buffer,0,(*it)->len);
         }
-        if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))) {
+        if((err = driver_interface->readAttribute((*it)->buffer, (*it)->keybind,(*it)->offset, (*it)->len))<0) {
             DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" driver with error " << err;
             setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
             //metadataLogging(chaos::common::metadata_logging::StandardLoggingChannel::LogLevelError, boost::str(boost::format("Error fetching key '%1%") %  (*it)->name ));
@@ -282,24 +290,24 @@ void DataImport::unitRun()  {
             //apply some filter if we need it
             switch(tt) {
                 case DataType::TYPE_JSON:{
-                    const char* json=(const char*)(*it)->buffer;
-                    if(json==NULL){
-                        DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" VALUE IS NULL";
+                    std::string sjson=std::string((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
+                    if(sjson.size()==0){
+                        DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" VALUE IS NULL and len "<<err;
 
                         setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
  
                     } else {
                         try{
                             chaos::common::data::CDataWrapper param;
-                            DILDBG_ << (*it)->name << " serializing "<<json;
+                     //       DILDBG_ << (*it)->name << " serializing "<<sjson;
 
-                            param.setSerializedJsonData(json);
-                            DILDBG_ << (*it)->name << " serialized "<<param.getJSONString();
+                            param.setSerializedJsonData(sjson.c_str());
+                      //      DILDBG_ << (*it)->name << " serialized size:"<<err<<" "<<param.getJSONString();
 
                             updateDataSet(param);
 
                         } catch(...){
-                            DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" invalid JSON " << json;
+                            DILERR_ << "Error reading attribute " << (*it)->name << " from key:"<<(*it)->keybind<<" invalid JSON: " << sjson;
 
                             setStateVariableSeverity(StateVariableTypeAlarmCU,"fetching_key_of_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelHigh);
     
@@ -321,13 +329,13 @@ void DataImport::unitRun()  {
                                 dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::little_endian, int32_t>(dest_buffer[cnt])*factor;
                             }
-                            DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+                          //  DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
 
                         }
                     } else if((*it)->original_type==DataType::TYPE_STRING){
-                        std::string tmp((const char*)(*it)->buffer,(*it)->len);
+                        std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
                         *((int32_t*)(*it)->buffer) = atoi(tmp.c_str());
-                        DILDBG_<<" reading INT32(string) attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
+                        DILDBG_<<" reading INT32(string) attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
 
                     }
                    
@@ -346,14 +354,14 @@ void DataImport::unitRun()  {
                                 dest_buffer[cnt] = chaos::common::utility::byte_swap<chaos::common::utility::host_endian,
                                 chaos::common::utility::little_endian, int64_t>(dest_buffer[cnt])*factor;
                             }
-                            DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+                            DILDBG_<<" reading INT32 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
 
                         }
                  } else  if((*it)->original_type==DataType::TYPE_STRING){
-                        std::string tmp((const char*)(*it)->buffer,(*it)->len);
+                        std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
                         *((int64_t*)(*it)->buffer) = atoll(tmp.c_str());
                     }
-                    DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
+                   // DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
                 break;
                 case DataType::TYPE_FLOAT:{
 
@@ -385,11 +393,11 @@ void DataImport::unitRun()  {
                                 }
                                 dest_buffer[cnt]  =d;
                             }
-                            DILDBG_<<" reading FLOAT attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+                     //       DILDBG_<<" reading FLOAT attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
 
                         }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
-                        std::string tmp((const char*)(*it)->buffer,(*it)->len);
+                        std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
                         double d=atof(tmp.c_str());
                           if(!std::isfinite(d)){
                                     setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
@@ -399,7 +407,7 @@ void DataImport::unitRun()  {
                             }
                         *((float*)(*it)->buffer) =d ;
                     }
-                    DILDBG_<<" reading FLOAT attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
+                //    DILDBG_<<" reading FLOAT attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
 
                     break;
 
@@ -433,7 +441,7 @@ void DataImport::unitRun()  {
                                 }
                                 dest_buffer[cnt]  =d;
                             }
-                            DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
+                    //        DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE["<<cnt<<"]:"<< dest_buffer[cnt];
 
                         }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
@@ -447,7 +455,7 @@ void DataImport::unitRun()  {
                             }
                         *((double*)(*it)->buffer) =d ;
                     }
-                    DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
+                 //   DILDBG_<<" reading DOUBLE attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((double*)(*it)->buffer);
 
                     break;
                     
@@ -467,7 +475,8 @@ void DataImport::unitRun()  {
 
 //!Execute the Control Unit work
 void DataImport::unitStop()  {
-    
+    //subscribe("AULA_TOUSHECK/TEMP/ZB_SENSOR_D0101",false);
+    //subscribe("AULA_TOUSHECK/TEMP/ZB_SENSOR_C0501",false);
 }
 
 //!Deinit the Control Unit
