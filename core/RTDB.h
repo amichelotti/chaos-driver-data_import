@@ -58,13 +58,13 @@ public:
 						chaos::DataType::DataSetAttributeIOAttribute attribute_direction,bool historize,
 						uint32_t maxSize = 0);
 
-	    		virtual void unitDefineActionAndDataset() throw(chaos::CException);
-	    		virtual void unitInit() throw(chaos::CException);
-	    		virtual void unitStart() throw(chaos::CException){}
-	    		virtual void unitStop() throw(chaos::CException){}
-	    		virtual void unitRun() throw(chaos::CException){}
+	    		virtual void unitDefineActionAndDataset() ;
+	    		virtual void unitInit() ;
+	    		virtual void unitStart() {}
+	    		virtual void unitStop() {}
+	    		virtual void unitRun() {}
 
-	    		virtual void unitDeinit() throw(chaos::CException);
+	    		virtual void unitDeinit() ;
 	    		virtual void unitStore();
 
 };

@@ -71,7 +71,7 @@ class DataImportHistory : public DataImport {
      }]
      }
      */
-  void unitDefineActionAndDataset() throw(chaos::CException);
+  void unitDefineActionAndDataset() ;
   /*!(Optional)
      Define the Control Unit custom attribute
      */
@@ -79,25 +79,25 @@ class DataImportHistory : public DataImport {
   /*!(Optional)
      Initialize the Control Unit and all driver, with received param from MetadataServer
      */
-  void unitInit() throw(chaos::CException);
+  void unitInit() ;
   /*!(Optional)
      Execute the work, this is called with a determinated delay
      */
-  void unitStart() throw(chaos::CException);
+  void unitStart() ;
   /*!
      Execute the work, this is called with a determinated delay, it must be as fast as possible
      */
-  void unitRun() throw(chaos::CException);
+  void unitRun() ;
 
   /*!(Optional)
      The Control Unit will be stopped
      */
-  void unitStop() throw(chaos::CException);
+  void unitStop() ;
 
   /*!(Optional)
      The Control Unit will be deinitialized and disposed
      */
-  void unitDeinit() throw(chaos::CException);
+  void unitDeinit() ;
 };
 }  // namespace data_import
 }  // namespace driver

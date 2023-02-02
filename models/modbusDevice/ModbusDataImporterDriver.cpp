@@ -69,7 +69,7 @@ if(cjson.hasKey("slave_id")){
 
       }
 }
-void ModbusDataImporterDriver::driverInit(const char *initParameter) throw(chaos::CException) {
+void ModbusDataImporterDriver::driverInit(const char *initParameter)  {
     
     AbstractDataImportDriver::driverInit(initParameter);
 	chaos::common::data::CDataWrapper cjson;
@@ -81,7 +81,7 @@ void ModbusDataImporterDriver::driverInit(const char *initParameter) throw(chaos
 
 }
 
-void ModbusDataImporterDriver::driverDeinit() throw(chaos::CException) {
+void ModbusDataImporterDriver::driverDeinit()  {
 	driver->close();
 	driver->deinit();
 	driver.reset();

@@ -55,8 +55,7 @@ MemcachedDataImporterDriver::~MemcachedDataImporterDriver() {
   }
 }
 
-void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(
-    chaos::CException) {
+void MemcachedDataImporterDriver::driverInit(const char *initParameter)  {
   Json::Value json_parameter;
   Json::StyledWriter json_writer;
   Json::Reader json_reader;
@@ -212,11 +211,11 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter) throw(
   }
    for (std::vector<std::string>::iterator it = data_keys.begin();
        it != data_keys.end(); it++) {
-           data_results[*it]=false;
+           data_results[*it]=0;
        }
 }
 
-void MemcachedDataImporterDriver::driverDeinit() throw(chaos::CException) {
+void MemcachedDataImporterDriver::driverDeinit()  {
   if (mc_client) {
     memcached_free(mc_client);
     mc_client = NULL;
@@ -264,14 +263,16 @@ int MemcachedDataImporterDriver::fetchData(void *buffer,
       free(value);
       key_read++;
       err=0;
+      data_results[*it]=value_length;
+
     } else {
       MemcachedDataImporterDriverLERR_ << "Error retriving data from key "
                                        << *it<<" memcod ret:"<<rc;
       err = driver::data_import::DATA_IMPORT_CANNOT_ACCESS_DATA;
       last_err=err;
+      data_results[*it]=err;
 
     }
-     data_results[*it]=err;
   }
   return last_err;
 }
@@ -292,6 +293,11 @@ int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
     return driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_KEY_BUFFER;
   }
   // copy seletected portion of data
+  if(data_ptr==NULL){
+     MemcachedDataImporterDriverLERR_ << "No space allocated for "<< key;
+     return -1;
+                            
+  }
   if (key == "") {
     std::memcpy(data_ptr, (buffer_data_block + offset), lenght);
   } else {

@@ -76,7 +76,7 @@ DataImportHistory::~DataImportHistory() {
 }
 
 
-void DataImportHistory::unitDefineActionAndDataset() throw(chaos::CException) {
+void DataImportHistory::unitDefineActionAndDataset()  {
 	DataImport::unitDefineActionAndDataset();
 
 	 //insert your definition code here
@@ -89,7 +89,7 @@ void DataImportHistory::unitDefineCustomAttribute() {
 }
 
 //!Initialize the Custom Control Unit
-void DataImportHistory::unitInit() throw(chaos::CException) {
+void DataImportHistory::unitInit()  {
 	DataImport::unitInit();
 	std::string ttype=std::string("DataImportHistory_")+getCUID();
 
@@ -168,12 +168,12 @@ void DataImportHistory::unitInit() throw(chaos::CException) {
 }
 
 //!Execute the work, this is called with a determinated delay, it must be as fast as possible
-void DataImportHistory::unitStart() throw(chaos::CException) {
+void DataImportHistory::unitStart()  {
     
 }
 
 //!Execute the Control Unit work
-void DataImportHistory::unitRun() throw(chaos::CException) {
+void DataImportHistory::unitRun()  {
     int err = 0;
     //fetch new datablock
     if((err = driver_interface->fetchNewDatablock())) {
@@ -229,12 +229,12 @@ void DataImportHistory::unitRun() throw(chaos::CException) {
 }
 
 //!Execute the Control Unit work
-void DataImportHistory::unitStop() throw(chaos::CException) {
+void DataImportHistory::unitStop()  {
     
 }
 
 //!Deinit the Control Unit
-void DataImportHistory::unitDeinit() throw(chaos::CException) {
+void DataImportHistory::unitDeinit()  {
     if(driver_interface) delete(driver_interface);
     if(history) delete(history);
     if(db){

@@ -74,9 +74,9 @@ class AbstractDataImportDriver: ADD_CU_DRIVER_PLUGIN_SUPERCLASS {
 protected:
     char *buffer_data_block;
     uint32_t buffer_len;
-    std::map<std::string,bool> data_results; //result of key
-    void driverInit(const char *initParameter) throw(chaos::CException);
-    void driverDeinit() throw(chaos::CException);
+    std::map<std::string,int> data_results; //result of key
+    void driverInit(const char *initParameter) ;
+    void driverDeinit() ;
     
     //! expand the datapack memory buffer
     bool growMem(unsigned int new_mem_size);

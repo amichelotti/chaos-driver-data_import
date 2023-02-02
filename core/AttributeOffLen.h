@@ -16,6 +16,8 @@ struct AttributeOffLen
     std::string name;
     std::string keybind;
     std::string desc;
+    std::string jsond; // json descriptor
+
     chaos::DataType::DataType type;
     chaos::DataType::DataType original_type;
 

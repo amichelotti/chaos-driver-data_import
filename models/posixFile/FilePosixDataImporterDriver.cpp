@@ -119,7 +119,7 @@ FilePosixDataImporterDriver::~FilePosixDataImporterDriver() {
    driverDeinit();
 }
 
-void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(chaos::CException) {
+void FilePosixDataImporterDriver::driverInit(const char *initParameter)  {
     Json::Value						json_parameter;
     Json::StyledWriter				json_writer;
     Json::Reader					json_reader;
@@ -171,7 +171,7 @@ void FilePosixDataImporterDriver::driverInit(const char *initParameter) throw(ch
 
 }
 
-void FilePosixDataImporterDriver::driverDeinit() throw(chaos::CException) {
+void FilePosixDataImporterDriver::driverDeinit()  {
 	if(buf){
 		free(buf);
 		buf=NULL;
@@ -310,12 +310,12 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 			if(lenght==sizeof(float)){
 				sscanf(pnt,"%f",(float*)data_ptr);
 				DPRINT("parsed float:%f",*(float*)data_ptr);
-				data_results[key]=true;
+				data_results[key]=lenght;
 
 			} else {
 				sscanf(pnt,"%lf",(double*)data_ptr);
 				DPRINT("parsed double:%lf",*(double*)data_ptr);
-				data_results[key]=true;
+				data_results[key]=lenght;
 
 			}
 			return 0;
@@ -324,13 +324,13 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 				int64_t temp=strtoll(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int64_t : (double) %lf [0x%lx] base:%ld",*(double*)data_ptr,temp,temp,offset);
-				data_results[key]=true;
+				data_results[key]=lenght;
 				return 0;
 			} else if(lenght == sizeof(int32_t)){
 				int32_t temp=strtol(pnt,0,offset);
 				memcpy(data_ptr,(void*)&temp,lenght);
 				DPRINT("parsed int32_t :%f [0x%x] base:%d",*(double*)data_ptr,temp,temp,offset);
-				data_results[key]=true;
+				data_results[key]=lenght;
 
 				return 0;
 			}

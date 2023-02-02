@@ -55,21 +55,21 @@ protected:
     /*!
 		Define the Control Unit Dataset and Actions
 		*/
-		void unitDefineActionAndDataset()throw(chaos::CException);
-                void unitInit() throw(chaos::CException);
+		void unitDefineActionAndDataset();
+                void unitInit() ;
 			/*(Optional)
 			 Execute the work, this is called with a determinated delay, it must be as fast as possible
 			 */
-			void unitStart() throw(chaos::CException);
+			void unitStart() ;
 			/*(Optional)
 			 The Control Unit will be stopped
 			 */
-			void unitStop() throw(chaos::CException);
+			void unitStop() ;
 			/*(Optional)
 			 The Control Unit will be deinitialized and disposed
 			 */
-			void unitDeinit() throw(chaos::CException);
-			void unitRun() throw(chaos::CException);
+			void unitDeinit() ;
+			void unitRun() ;
 
  
 };

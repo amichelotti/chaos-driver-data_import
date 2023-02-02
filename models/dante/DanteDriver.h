@@ -47,7 +47,7 @@ class DanteDriver:public MemcachedDataImporterDriver {
     
     std::string danteRestServer,username,password;
     std::string danteElement;
-    chaos_crest_handle_t crest_handle;
+    //chaos_crest_handle_t crest_handle;
     //chaos::common::data::CDWUniquePtr dataset;
     ::driver::data_import::AttributeOffLenVec attribute_off_len_vec;
     ::driver::data_import::AttributeOffLenVec static_attribute_off_len_vec;
@@ -66,8 +66,8 @@ public:
         DYNAMIC,
         STATIC
     };
- void driverInit(const char *initParameter) throw(chaos::CException);
-    void driverDeinit() throw(chaos::CException);
+ void driverInit(const char *initParameter) ;
+    void driverDeinit() ;
    
     /**
      * @brief makes a rest post calling the function and giving the JSON parameters

@@ -46,7 +46,7 @@ RTDB::RTDB(const string& _control_unit_id,
 
 
 
-void RTDB::unitDefineActionAndDataset() throw(chaos::CException) {
+void RTDB::unitDefineActionAndDataset()  {
 	//insert your definition code here
 	chaos::cu::control_manager::RTAbstractControlUnit::addAttributeToDataSet("TTL",
 			"Time To Live",
@@ -75,7 +75,7 @@ void RTDB::unitDefineActionAndDataset() throw(chaos::CException) {
 
 
 //!Initialize the Custom Control Unit
-void RTDB::unitInit() throw(chaos::CException) {
+void RTDB::unitInit()  {
 
 	int ret;
 	std::string type=std::string("RTDB_")+getCUID();
@@ -126,7 +126,7 @@ void RTDB::addAttributeToDataSet(const std::string& attribute_name,
 
 }
 //!Deinit the Control Unit
-void RTDB::unitDeinit() throw(chaos::CException) {
+void RTDB::unitDeinit()  {
 	db->disconnect();
 }
 

@@ -84,7 +84,7 @@ RTGenericDanteCU::~RTGenericDanteCU() {
  "lbe":true(little)-false(big)
  }]
  }*/
-void RTGenericDanteCU::unitDefineActionAndDataset() throw(chaos::CException) {
+void RTGenericDanteCU::unitDefineActionAndDataset()  {
 
     chaos::common::data::CDWUniquePtr p=driver.getDataset();
 
@@ -102,18 +102,18 @@ void RTGenericDanteCU::unitDefineCustomAttribute() {
 }
 
 //!Initialize the Custom Control Unit
-void RTGenericDanteCU::unitInit() throw(chaos::CException) {
+void RTGenericDanteCU::unitInit()  {
     
     
 }
 
 //!Execute the work, this is called with a determinated delay, it must be as fast as possible
-void RTGenericDanteCU::unitStart() throw(chaos::CException) {
+void RTGenericDanteCU::unitStart()  {
     
 }
 
 //!Execute the Control Unit work
-void RTGenericDanteCU::unitRun() throw(chaos::CException) {
+void RTGenericDanteCU::unitRun()  {
      chaos::common::data::CDWUniquePtr p=driver.getDataset();
     if(p.get()){
         updateDataSet(*p.get());
@@ -126,10 +126,10 @@ void RTGenericDanteCU::unitRun() throw(chaos::CException) {
 }
 
 //!Execute the Control Unit work
-void RTGenericDanteCU::unitStop() throw(chaos::CException) {
+void RTGenericDanteCU::unitStop()  {
     
 }
 
 //!Deinit the Control Unit
-void RTGenericDanteCU::unitDeinit() throw(chaos::CException) {
+void RTGenericDanteCU::unitDeinit()  {
 }

@@ -51,8 +51,8 @@ class MemcachedDataImporterDriver : public AbstractDataImportDriver {
      "data_keys":memcached key array
      "data_pack_len":the lenght of the intere datapack to read
      */
-  void driverInit(const char *initParameter) throw(chaos::CException);
-  void driverDeinit() throw(chaos::CException);
+  void driverInit(const char *initParameter) ;
+  void driverDeinit() ;
   int  fetchData(void *buffer, unsigned int buffer_len, const std::string key = "");
   int  readDataOffset(void *data_ptr, const std::string &key, uint32_t offset, uint32_t lenght);
   int  readDataOffset(AttributeOffLen *v);
