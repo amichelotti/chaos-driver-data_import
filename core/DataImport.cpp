@@ -334,7 +334,7 @@ void DataImport::unitRun()  {
                         }
                     } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
-                        *((int32_t*)(*it)->buffer) = atoi(tmp.c_str());
+                        *((int32_t*)(*it)->buffer) = atoi(tmp.c_str())*factor;
                         DILDBG_<<" reading INT32(string) attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int32_t*)(*it)->buffer);
 
                     }
@@ -359,9 +359,28 @@ void DataImport::unitRun()  {
                         }
                  } else  if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
-                        *((int64_t*)(*it)->buffer) = atoll(tmp.c_str());
+                        *((int64_t*)(*it)->buffer) = atoll(tmp.c_str())*factor;
                     }
                    // DILDBG_<<" reading INT64 attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((int64_t*)(*it)->buffer);
+                break;
+                case DataType::TYPE_BOOLEAN:
+                    if((*it)->original_type==(*it)->type){
+                        bool *dest_buffer=(bool*)(*it)->buffer;
+                        if(isVector==false){
+                            size=sizeof(bool);
+                        }
+                        for(int cnt=0;cnt<size/sizeof(bool);cnt++){
+                            dest_buffer[cnt] = dest_buffer[cnt]*factor;
+                            
+
+                        }
+                    } else if((*it)->original_type==DataType::TYPE_STRING){
+                        std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
+                        *((bool*)(*it)->buffer) = atoi(tmp.c_str()) * factor;
+                        DILDBG_<<" reading BOOL(string) attribute idx:"<<(*it)->index<<" name:"<<(*it)->name<<"["<<(*it)->keybind<<"] off:"<<(*it)->offset<<" len:"<<err<<" maxlen:"<<(*it)->len<<" LBE:"<<(*it)->lbe<<" VALUE:"<< *((bool*)(*it)->buffer);
+
+                    }
+                   
                 break;
                 case DataType::TYPE_FLOAT:{
 
@@ -398,7 +417,7 @@ void DataImport::unitRun()  {
                         }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,std::min(err,(int)(*it)->len));
-                        double d=atof(tmp.c_str());
+                        double d=atof(tmp.c_str())*factor;
                           if(!std::isfinite(d)){
                                     setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
                             } else {
@@ -446,7 +465,7 @@ void DataImport::unitRun()  {
                         }
                 } else if((*it)->original_type==DataType::TYPE_STRING){
                         std::string tmp((const char*)(*it)->buffer,(*it)->len);
-                        double d=atof(tmp.c_str());
+                        double d=atof(tmp.c_str())*factor;
                           if(!std::isfinite(d)){
                                     setStateVariableSeverity(StateVariableTypeAlarmCU,"invalid_data_on_"+(*it)->name, chaos::common::alarm::MultiSeverityAlarmLevelWarning);
                             } else {
@@ -468,7 +487,7 @@ void DataImport::unitRun()  {
     //! set output dataset as changed
         getAttributeCache()->setOutputDomainAsChanged();
     } else {
-        DILDBG_<<" Nothing changed";
+      //  DILDBG_<<" Nothing changed";
  
     }
 }
