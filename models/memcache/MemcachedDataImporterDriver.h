@@ -42,7 +42,8 @@ namespace data_import {
 class MemcachedDataImporterDriver : public AbstractDataImportDriver {
   std::vector<std::string>        data_keys;
   uint32_t                        data_pack_len;
-  memcached_st *                  mc_client;
+  std::shared_ptr<memcached_st>                 mc_client;
+  static std::mutex mc_mutex;
   std::map<std::string, uint32_t> key2off;
 
  protected:

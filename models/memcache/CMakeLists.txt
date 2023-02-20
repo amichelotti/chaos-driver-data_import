@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 2.9)
 project(chaos_driver_data_import_memcache)
-ADD_DEFINITIONS(-std=c++11)
 
 SET(lib MemcachedDataImporterDriver.cpp RTChaos2Memcache.cpp MemcacheClient.cpp)
 
