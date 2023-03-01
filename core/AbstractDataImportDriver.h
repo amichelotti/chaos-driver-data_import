@@ -93,6 +93,7 @@ public:
     int fetch(const std::string key="");
     
     virtual int fetchData(void *buffer, unsigned int buffer_len,const std::string key="");
+    // return <0 if error, >=0 size data
     virtual int readDataOffset(void* data_ptr, uint32_t offset, uint32_t lenght);
     virtual int readDataOffset(void* data_ptr, const std::string& key,uint32_t offset, uint32_t lenght);
     // fill the attribute

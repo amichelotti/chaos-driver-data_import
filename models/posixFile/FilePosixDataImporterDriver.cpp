@@ -288,7 +288,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 		}
 		memcpy(data_ptr,buf+offset,lenght);
 		DPRINT("binary copy from off %d, lenght %d",offset,lenght);
-		return 0;
+		return lenght;
 	} else {
 		DPRINT("parsing buffer \"%s\"",buf);
 		// treats as string
@@ -318,7 +318,7 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 				data_results[key]=lenght;
 
 			}
-			return 0;
+			return lenght;
 		} else {
 			if(lenght==sizeof(int64_t)){
 				int64_t temp=strtoll(pnt,0,offset);
@@ -332,12 +332,12 @@ int FilePosixDataImporterDriver::readDataOffset(void* data_ptr, const std::strin
 				DPRINT("parsed int32_t :%f [0x%x] base:%d",*(double*)data_ptr,temp,temp,offset);
 				data_results[key]=lenght;
 
-				return 0;
+				return lenght;
 			}
 		}
 	}
 	ERR("error parsing, searching %s off:%d len %d",key.c_str(),offset,lenght);
-	return DATA_IMPORT_DECODE_ERROR;
+	return -DATA_IMPORT_DECODE_ERROR;
 }
 
 
