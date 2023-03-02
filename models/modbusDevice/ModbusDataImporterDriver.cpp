@@ -99,9 +99,6 @@ int ModbusDataImporterDriver::readDataOffset(void* data_ptr, const std::string &
 	int ret;
 	ret=driver->read_input_registers(offset,lenght,(uint16_t*)data_ptr,slave_id);
 
-	if(ret==lenght){
-		return 0;
-	}
 	return ret;
 }
 

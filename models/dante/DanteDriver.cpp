@@ -134,7 +134,7 @@ void DanteDriver::updateProperties() {
   for (::driver::data_import::AttributeOffLenIterator it = static_attribute_off_len_vec.begin();
        it != static_attribute_off_len_vec.end();
        it++) {
-    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))) {
+    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))<0) {
       DanteDriverLERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
     }
     copy((*it)->buffer, *it);
@@ -143,7 +143,7 @@ void DanteDriver::updateProperties() {
   for (::driver::data_import::AttributeOffLenIterator it = attribute_off_len_vec.begin();
        it != attribute_off_len_vec.end();
        it++) {
-    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))) {
+    if ((err = readDataOffset((*it)->buffer, (*it)->keybind, (*it)->offset, (*it)->len))<0) {
       DanteDriverLERR_ << "Error reading attribute " << (*it)->name << " from driver with error " << err;
     }
     copy((*it)->buffer, *it);
@@ -246,7 +246,7 @@ int DanteDriver::getData(chaos::common::data::CDataWrapper &in, DSTYPE typ) {
         DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
         return -1;
       }
-      if ((err = readDataOffset(k->second))) {
+      if ((err = readDataOffset(k->second)<0)) {
         DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
         return -2;
 
@@ -289,7 +289,7 @@ chaos::common::data::CDWUniquePtr DanteDriver::getDataset(DSTYPE typ) {
     if ((err = fetch(k->second->keybind)) != 0) {
       DanteDriverLERR_ << "ERROR fetching:" << k->second->keybind;
     }
-    if ((err = readDataOffset(k->second))) {
+    if ((err = readDataOffset(k->second))<0) {
       DanteDriverLERR_ << "Error reading attribute " << k->first << "[" << k->second->keybind << "] from driver with error " << err;
     } else {
       /*  TYPE_BOOLEAN = 0,
@@ -353,15 +353,17 @@ int DanteDriver::getData(const std::string &key, void *ptr, DSTYPE typ, int maxs
     DanteDriverLERR_ << "ERROR fetching:" << it->keybind;
     return err;
   }
-  if ((err = readDataOffset(it))) {
+  // return len
+  if ((err = readDataOffset(it)<0)) {
     DanteDriverLERR_ << "Error reading attribute " << it->name << " from driver with error " << err;
     return err;
   }
-  if ((maxsize > 0) && (maxsize < it->len)) {
-    DanteDriverLERR_ << "Error attribute " << it->name << " size of type: " << it->len << " bigger than allocated:" << maxsize;
+
+  if ((maxsize > 0) && (maxsize < err)) {
+    DanteDriverLERR_ << "Error attribute " << it->name << " read size : " << err << " bigger than allocated:" << maxsize;
     return -200;
   }
-  memcpy(ptr, it->buffer, it->len);
+  memcpy(ptr, it->buffer, err);
   return err;
 }
 }  // namespace data_import

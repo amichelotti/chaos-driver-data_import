@@ -312,7 +312,7 @@ int MemcachedDataImporterDriver::readDataOffset(void *data_ptr,
   int err = 0;
   CHAOS_ASSERT(buffer_data_block)
   if ((offset + lenght) > buffer_len){
-    return driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_KEY_BUFFER;
+    return -driver::data_import::DATA_IMPORT_DOESNT_FIT_USER_KEY_BUFFER;
   }
   // copy seletected portion of data
   if(data_ptr==NULL){
