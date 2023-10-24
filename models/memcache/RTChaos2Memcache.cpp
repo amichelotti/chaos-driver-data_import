@@ -20,11 +20,11 @@
 
 #include "RTChaos2Memcache.h"
 //#include "RTChaos2MemcacheDriver.h"
-#include <boost/algorithm/string.hpp>
-
+//#include <boost/algorithm/string.hpp>
+#include <chaos/common/ChaosCommon.h>
 #include <chaos/cu_toolkit/command_manager/CommandManager.h>
 #include <common/debug/core/debug.h>
-#include<boost/algorithm/string.hpp>
+//#include<boost/algorithm/string.hpp>
 
 using namespace chaos;
 using namespace chaos::common::data::cache;
@@ -109,7 +109,8 @@ void RTChaos2Memcache::unitInit()  {
     
     server_url.assign(url);
     server_key.assign(key);
-    boost::split(urls,server_url,boost::is_any_of(":"));
+   // boost::split(urls,server_url,boost::is_any_of(":"));
+   urls=chaos::split(server_url,":");
     DPRINT("Adding server %s",server_url.c_str());
 
   try {

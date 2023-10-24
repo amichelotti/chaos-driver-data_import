@@ -31,8 +31,9 @@
 
 #include <json/json.h>
 #include <driver/data-import/core/AttributeOffLen.h>
-#include <boost/algorithm/string.hpp>
-#include <boost/lexical_cast.hpp>
+//#include <boost/algorithm/string.hpp>
+//#include <boost/lexical_cast.hpp>
+#include <chaos/common/ChaosCommon.h>
 class allocateMClient{
   static std::shared_ptr<memcached_st> mc_client;
   static std::set<std::string> hosts;
@@ -214,8 +215,8 @@ void MemcachedDataImporterDriver::driverInit(const char *initParameter)  {
     // get the string
     host_port = it->asString();
     // split host form port
-    boost::split(host_port_vec, host_port, boost::is_any_of(":"));
-
+   // boost::split(host_port_vec, host_port, boost::is_any_of(":"));
+    host_port_vec=chaos::split(host_port,":");
     // check if the host string is correct
     if (host_port_vec.size() != 2) {
       throw chaos::CException(
